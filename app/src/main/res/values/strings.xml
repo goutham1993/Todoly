@@ -1,0 +1,40 @@
+<resources>
+    <string name="app_name">Todoly</string>
+
+    <string name="add">Add</string>
+    <string name="add_category">Add Category</string>
+    <string name="add_todo">Add Task</string>
+    <string name="edit_todo">Edit Task</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+    <string name="delete">Delete</string>
+    <string name="undo">Undo</string>
+
+    <string name="attributes">Attributes</string>
+    <string name="attr_important">Important</string>
+    <string name="attr_quick">Quick</string>
+
+    <string name="delete_category">Delete category?</string>
+    <string name="delete_category_empty">\"%1$s\" will be permanently deleted. Are you sure you want to continue?</string>
+    <string name="delete_category_with_todos">\"%1$s\" and its %2$d task(s) will be permanently deleted. This cannot be undone. Are you sure you want to continue?</string>
+
+    <string name="completed">Completed</string>
+    <string name="category_name_hint">Category name</string>
+    <string name="todo_title_hint">What needs to be done?</string>
+    <string name="todo_notes_hint">Notes (optional)</string>
+    <string name="select_category">Category</string>
+    <string name="pick_a_color">Pick a color</string>
+
+    <string name="expand_all">Expand all</string>
+    <string name="collapse_all">Collapse all</string>
+    <string name="toggle_view">Toggle view</string>
+
+    <string name="empty_title">Let\'s get organized</string>
+    <string name="empty_subtitle">You don\'t have any categories yet. Tap the + button to create your first category, then start adding tasks.</string>
+
+    <string name="task_deleted">Task deleted</string>
+    <string name="need_category_first">Create a category first to add tasks</string>
+    <string name="cd_category_color">Category color</string>
+    <string name="cd_expand">Expand or collapse</string>
+    <string name="drag_to_reorder">Drag to reorder</string>
+</resources>

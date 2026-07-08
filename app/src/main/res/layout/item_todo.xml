@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="16dp"
+    android:layout_marginEnd="16dp"
+    android:layout_marginTop="6dp"
+    android:layout_marginBottom="0dp"
+    app:cardBackgroundColor="?attr/colorSurface"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="0dp"
+    app:strokeColor="?attr/colorOutline"
+    app:strokeWidth="1dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:minHeight="60dp"
+        android:paddingStart="6dp"
+        android:paddingEnd="16dp">
+
+        <View
+            android:id="@+id/colorStrip"
+            android:layout_width="4dp"
+            android:layout_height="34dp"
+            android:layout_marginStart="6dp"
+            android:background="@drawable/bg_strip" />
+
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:minWidth="0dp"
+            android:padding="8dp" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp">
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:text="Buy groceries"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="16sp"
+                tools:ignore="HardcodedText" />
+
+            <TextView
+                android:id="@+id/subtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="Personal"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:textSize="13sp"
+                android:visibility="gone"
+                tools:ignore="HardcodedText"
+                tools:visibility="visible" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/iconQuick"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginStart="6dp"
+            android:contentDescription="@string/attr_quick"
+            android:src="@drawable/ic_bolt"
+            app:tint="@color/quick"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <ImageView
+            android:id="@+id/iconImportant"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginStart="6dp"
+            android:contentDescription="@string/attr_important"
+            android:src="@drawable/ic_star"
+            app:tint="@color/important"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <ImageView
+            android:id="@+id/dragHandle"
+            android:layout_width="28dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="4dp"
+            android:contentDescription="@string/drag_to_reorder"
+            android:padding="4dp"
+            android:scaleType="center"
+            android:src="@drawable/ic_drag_handle" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="16dp"
+    android:layout_marginEnd="16dp"
+    android:layout_marginTop="14dp"
+    android:layout_marginBottom="2dp"
+    app:cardBackgroundColor="?attr/colorSurface"
+    app:cardCornerRadius="18dp"
+    app:cardElevation="0dp"
+    app:strokeColor="?attr/colorOutline"
+    app:strokeWidth="1dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingEnd="12dp"
+        android:paddingTop="14dp"
+        android:paddingBottom="14dp">
+
+        <View
+            android:id="@+id/colorDot"
+            android:layout_width="14dp"
+            android:layout_height="14dp"
+            android:background="@drawable/bg_circle" />
+
+        <TextView
+            android:id="@+id/categoryName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="14dp"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="Work"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:id="@+id/countBadge"
+            style="@style/Widget.Todoly.CountBadge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="6dp"
+            android:text="3"
+            tools:ignore="HardcodedText" />
+
+        <ImageView
+            android:id="@+id/chevron"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:contentDescription="@string/cd_expand"
+            android:src="@drawable/ic_chevron_down" />
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

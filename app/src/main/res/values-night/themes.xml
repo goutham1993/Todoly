@@ -1,0 +1,23 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme (dark). -->
+    <style name="Base.Theme.Todoly" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/brand_primary</item>
+        <item name="colorPrimaryDark">@color/brand_primary_dark</item>
+        <item name="colorOnPrimary">@color/brand_on_primary</item>
+        <item name="colorPrimaryContainer">@color/brand_primary_container_dark</item>
+        <item name="colorOnPrimaryContainer">@color/brand_on_primary_container_dark</item>
+
+        <item name="colorSecondary">@color/brand_primary</item>
+        <item name="colorOnSecondary">@color/brand_on_primary</item>
+
+        <item name="android:colorBackground">@color/app_background_dark</item>
+        <item name="colorSurface">@color/surface_dark</item>
+        <item name="colorOnSurface">@color/on_surface_dark</item>
+        <item name="colorSurfaceVariant">@color/surface_variant_dark</item>
+        <item name="colorOnSurfaceVariant">@color/on_surface_variant_dark</item>
+        <item name="colorOutline">@color/outline_dark</item>
+
+        <item name="android:statusBarColor">@color/app_background_dark</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>

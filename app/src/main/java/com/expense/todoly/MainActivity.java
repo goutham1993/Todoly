@@ -111,9 +111,40 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         expandItem = menu.findItem(R.id.action_toggle_expand);
         viewItem = menu.findItem(R.id.action_toggle_view);
+        setupSearch(menu.findItem(R.id.action_search));
         updateExpandIcon();
         updateViewIcon(viewModel.getViewMode().getValue());
         return true;
+    }
+
+    private void setupSearch(MenuItem searchItem) {
+        androidx.appcompat.widget.SearchView searchView =
+                (androidx.appcompat.widget.SearchView) searchItem.getActionView();
+        searchView.setQueryHint(getString(R.string.search_hint));
+        searchView.setOnQueryTextListener(new androidx.appcompat.widget.SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                viewModel.setSearchQuery(newText);
+                return true;
+            }
+        });
+        searchItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem item) {
+                return true;
+            }
+
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem item) {
+                viewModel.setSearchQuery("");
+                return true;
+            }
+        });
     }
 
     @Override

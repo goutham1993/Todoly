@@ -28,6 +28,8 @@
     <string name="expand_all">Expand all</string>
     <string name="collapse_all">Collapse all</string>
     <string name="toggle_view">Toggle view</string>
+    <string name="search">Search</string>
+    <string name="search_hint">Search tasks</string>
 
     <string name="empty_title">Let\'s get organized</string>
     <string name="empty_subtitle">You don\'t have any categories yet. Tap the + button to create your first category, then start adding tasks.</string>

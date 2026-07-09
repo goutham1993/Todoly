@@ -21,6 +21,7 @@ import com.expense.todoly.R;
 import com.expense.todoly.data.entity.Category;
 import com.expense.todoly.data.entity.Todo;
 import com.expense.todoly.ui.dialog.AddTodoBottomSheet;
+import com.google.android.material.chip.Chip;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
@@ -32,6 +33,8 @@ public class HomeFragment extends Fragment {
     private HomeAdapter adapter;
     private RecyclerView recycler;
     private View emptyState;
+    private Chip chipFilterImportant;
+    private Chip chipFilterQuick;
     private ItemTouchHelper touchHelper;
     private final List<Category> categories = new ArrayList<>();
 
@@ -49,6 +52,8 @@ public class HomeFragment extends Fragment {
 
         recycler = view.findViewById(R.id.recycler);
         emptyState = view.findViewById(R.id.emptyState);
+        chipFilterImportant = view.findViewById(R.id.chipFilterImportant);
+        chipFilterQuick = view.findViewById(R.id.chipFilterQuick);
 
         adapter = new HomeAdapter(new HomeAdapter.Listener() {
             @Override
@@ -99,6 +104,7 @@ public class HomeFragment extends Fragment {
         }
 
         attachSwipe();
+        setupFilters();
 
         viewModel.getCategories().observe(getViewLifecycleOwner(), list -> {
             categories.clear();
@@ -108,6 +114,22 @@ public class HomeFragment extends Fragment {
         viewModel.getDisplayItems().observe(getViewLifecycleOwner(), items -> {
             adapter.submit(items);
             emptyState.setVisibility(items.isEmpty() ? View.VISIBLE : View.GONE);
+        });
+    }
+
+    private void setupFilters() {
+        chipFilterImportant.setOnCheckedChangeListener((btn, checked) ->
+                viewModel.setFilterImportant(checked));
+        chipFilterQuick.setOnCheckedChangeListener((btn, checked) ->
+                viewModel.setFilterQuick(checked));
+
+        viewModel.getFilterImportant().observe(getViewLifecycleOwner(), enabled -> {
+            boolean on = Boolean.TRUE.equals(enabled);
+            if (chipFilterImportant.isChecked() != on) chipFilterImportant.setChecked(on);
+        });
+        viewModel.getFilterQuick().observe(getViewLifecycleOwner(), enabled -> {
+            boolean on = Boolean.TRUE.equals(enabled);
+            if (chipFilterQuick.isChecked() != on) chipFilterQuick.setChecked(on);
         });
     }
 

@@ -33,6 +33,8 @@ public class TodoViewModel extends AndroidViewModel {
     private final MutableLiveData<Set<Long>> collapsedCategoryIds = new MutableLiveData<>(new HashSet<>());
     private final MutableLiveData<Boolean> completedExpanded = new MutableLiveData<>(false);
     private final MutableLiveData<String> searchQuery = new MutableLiveData<>("");
+    private final MutableLiveData<Boolean> filterImportant = new MutableLiveData<>(false);
+    private final MutableLiveData<Boolean> filterQuick = new MutableLiveData<>(false);
 
     private final MediatorLiveData<List<DisplayItem>> displayItems = new MediatorLiveData<>();
 
@@ -51,6 +53,8 @@ public class TodoViewModel extends AndroidViewModel {
         displayItems.addSource(collapsedCategoryIds, v -> rebuild());
         displayItems.addSource(completedExpanded, v -> rebuild());
         displayItems.addSource(searchQuery, v -> rebuild());
+        displayItems.addSource(filterImportant, v -> rebuild());
+        displayItems.addSource(filterQuick, v -> rebuild());
     }
 
     public LiveData<List<DisplayItem>> getDisplayItems() {
@@ -63,6 +67,14 @@ public class TodoViewModel extends AndroidViewModel {
 
     public LiveData<ViewMode> getViewMode() {
         return viewMode;
+    }
+
+    public LiveData<Boolean> getFilterImportant() {
+        return filterImportant;
+    }
+
+    public LiveData<Boolean> getFilterQuick() {
+        return filterQuick;
     }
 
     private void rebuild() {
@@ -80,8 +92,12 @@ public class TodoViewModel extends AndroidViewModel {
         if (mode == null) mode = ViewMode.GROUPED;
 
         String query = searchQuery.getValue();
-        if (query != null && !query.isEmpty()) {
-            displayItems.setValue(buildSearchResults(cats, active, completed, query));
+        if (query == null) query = "";
+        boolean fImportant = Boolean.TRUE.equals(filterImportant.getValue());
+        boolean fQuick = Boolean.TRUE.equals(filterQuick.getValue());
+
+        if (!query.isEmpty() || fImportant || fQuick) {
+            displayItems.setValue(buildFilteredResults(cats, active, completed, query, fImportant, fQuick));
             return;
         }
 
@@ -124,31 +140,41 @@ public class TodoViewModel extends AndroidViewModel {
         displayItems.setValue(items);
     }
 
-    private List<DisplayItem> buildSearchResults(List<CategoryWithCount> cats, List<Todo> active,
-                                                 List<Todo> completed, String query) {
+    private List<DisplayItem> buildFilteredResults(List<CategoryWithCount> cats, List<Todo> active,
+                                                   List<Todo> completed, String query,
+                                                   boolean fImportant, boolean fQuick) {
         List<DisplayItem> items = new ArrayList<>();
         for (Todo t : active) {
-            if (matches(t, query)) {
+            if (matches(t, query) && matchesAttributes(t, fImportant, fQuick)) {
                 CategoryWithCount cat = findCategory(cats, t.categoryId);
                 String color = cat != null ? cat.colorHex : "#9E9E9E";
                 String name = cat != null ? cat.name : "";
                 items.add(DisplayItem.todoRow(t, color, name));
             }
         }
-        for (Todo t : completed) {
-            if (matches(t, query)) {
-                CategoryWithCount cat = findCategory(cats, t.categoryId);
-                String color = cat != null ? cat.colorHex : "#9E9E9E";
-                String name = cat != null ? cat.name : "";
-                items.add(DisplayItem.completedRow(t, color, name));
+        // Completed todos only appear for text search, not for attribute-only filtering.
+        if (!query.isEmpty()) {
+            for (Todo t : completed) {
+                if (matches(t, query) && matchesAttributes(t, fImportant, fQuick)) {
+                    CategoryWithCount cat = findCategory(cats, t.categoryId);
+                    String color = cat != null ? cat.colorHex : "#9E9E9E";
+                    String name = cat != null ? cat.name : "";
+                    items.add(DisplayItem.completedRow(t, color, name));
+                }
             }
         }
         return items;
     }
 
     private boolean matches(Todo todo, String query) {
+        if (query.isEmpty()) return true;
         if (todo.title != null && todo.title.toLowerCase().contains(query)) return true;
         return todo.notes != null && todo.notes.toLowerCase().contains(query);
+    }
+
+    private boolean matchesAttributes(Todo todo, boolean fImportant, boolean fQuick) {
+        if (fImportant && !todo.important) return false;
+        return !fQuick || todo.quick;
     }
 
     private CategoryWithCount findCategory(List<CategoryWithCount> cats, long id) {
@@ -224,6 +250,18 @@ public class TodoViewModel extends AndroidViewModel {
         String current = searchQuery.getValue();
         if (!normalized.equals(current)) {
             searchQuery.setValue(normalized);
+        }
+    }
+
+    public void setFilterImportant(boolean enabled) {
+        if (!Boolean.valueOf(enabled).equals(filterImportant.getValue())) {
+            filterImportant.setValue(enabled);
+        }
+    }
+
+    public void setFilterQuick(boolean enabled) {
+        if (!Boolean.valueOf(enabled).equals(filterQuick.getValue())) {
+            filterQuick.setValue(enabled);
         }
     }
 }

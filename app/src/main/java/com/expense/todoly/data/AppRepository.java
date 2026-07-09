@@ -1,6 +1,8 @@
 package com.expense.todoly.data;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 
 import androidx.lifecycle.LiveData;
 
@@ -14,6 +16,7 @@ import java.util.List;
 
 public class AppRepository {
 
+    private final AppDatabase db;
     private final CategoryDao categoryDao;
     private final TodoDao todoDao;
 
@@ -22,8 +25,10 @@ public class AppRepository {
     private final LiveData<List<Todo>> activeTodos;
     private final LiveData<List<Todo>> completedTodos;
 
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
+
     public AppRepository(Context context) {
-        AppDatabase db = AppDatabase.getInstance(context);
+        db = AppDatabase.getInstance(context);
         categoryDao = db.categoryDao();
         todoDao = db.todoDao();
         categories = categoryDao.observeAll();
@@ -97,5 +102,44 @@ public class AppRepository {
 
     public void updateTodo(final Todo todo) {
         AppDatabase.IO_EXECUTOR.execute(() -> todoDao.update(todo));
+    }
+
+    public interface ExportCallback {
+        void onResult(List<Category> categories, List<Todo> todos);
+
+        void onError(Exception e);
+    }
+
+    public interface ImportCallback {
+        void onResult(int categoryCount, int todoCount);
+
+        void onError(Exception e);
+    }
+
+    public void exportAll(final ExportCallback callback) {
+        AppDatabase.IO_EXECUTOR.execute(() -> {
+            try {
+                final List<Category> allCategories = categoryDao.getAllSync();
+                final List<Todo> allTodos = todoDao.getAllSync();
+                mainHandler.post(() -> callback.onResult(allCategories, allTodos));
+            } catch (Exception e) {
+                mainHandler.post(() -> callback.onError(e));
+            }
+        });
+    }
+
+    public void importReplace(final List<Category> importedCategories,
+                              final List<Todo> importedTodos,
+                              final ImportCallback callback) {
+        AppDatabase.IO_EXECUTOR.execute(() -> {
+            try {
+                db.replaceAll(importedCategories, importedTodos);
+                final int categoryCount = importedCategories == null ? 0 : importedCategories.size();
+                final int todoCount = importedTodos == null ? 0 : importedTodos.size();
+                mainHandler.post(() -> callback.onResult(categoryCount, todoCount));
+            } catch (Exception e) {
+                mainHandler.post(() -> callback.onError(e));
+            }
+        });
     }
 }

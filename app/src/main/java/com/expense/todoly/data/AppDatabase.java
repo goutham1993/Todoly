@@ -14,6 +14,7 @@ import com.expense.todoly.data.dao.TodoDao;
 import com.expense.todoly.data.entity.Category;
 import com.expense.todoly.data.entity.Todo;
 
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -51,5 +52,23 @@ public abstract class AppDatabase extends RoomDatabase {
             }
         }
         return INSTANCE;
+    }
+
+    /**
+     * Atomically wipes all existing data and loads the provided categories and todos,
+     * preserving their original primary-key ids so that {@code Todo.categoryId} foreign
+     * keys remain valid after a full replace import.
+     */
+    public void replaceAll(final List<Category> categories, final List<Todo> todos) {
+        runInTransaction(() -> {
+            todoDao().deleteAll();
+            categoryDao().deleteAll();
+            if (categories != null && !categories.isEmpty()) {
+                categoryDao().insertAll(categories);
+            }
+            if (todos != null && !todos.isEmpty()) {
+                todoDao().insertAll(todos);
+            }
+        });
     }
 }

@@ -18,6 +18,9 @@ public interface CategoryDao {
     @Insert
     long insert(Category category);
 
+    @Insert
+    void insertAll(List<Category> categories);
+
     @Update
     void update(Category category);
 
@@ -26,6 +29,9 @@ public interface CategoryDao {
 
     @Query("DELETE FROM categories WHERE id = :id")
     void deleteById(long id);
+
+    @Query("DELETE FROM categories")
+    void deleteAll();
 
     @Query("SELECT * FROM categories ORDER BY sortOrder ASC, createdAt ASC")
     LiveData<List<Category>> observeAll();

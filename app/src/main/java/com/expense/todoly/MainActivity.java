@@ -1,5 +1,6 @@
 package com.expense.todoly;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -162,6 +163,9 @@ public class MainActivity extends AppCompatActivity {
             return true;
         } else if (id == R.id.action_toggle_view) {
             viewModel.toggleViewMode();
+            return true;
+        } else if (id == R.id.action_settings) {
+            startActivity(new Intent(this, SettingsActivity.class));
             return true;
         }
         return super.onOptionsItemSelected(item);

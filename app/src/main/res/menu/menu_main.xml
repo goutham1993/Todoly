@@ -18,4 +18,9 @@
         android:icon="@drawable/ic_view_list"
         android:title="@string/toggle_view"
         app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_settings"
+        android:icon="@drawable/ic_settings"
+        android:title="@string/settings"
+        app:showAsAction="never" />
 </menu>

@@ -17,6 +17,9 @@ public interface TodoDao {
     @Insert
     long insert(Todo todo);
 
+    @Insert
+    void insertAll(List<Todo> todos);
+
     @Update
     void update(Todo todo);
 
@@ -46,4 +49,10 @@ public interface TodoDao {
 
     @Query("SELECT * FROM todos WHERE id = :id")
     Todo getById(long id);
+
+    @Query("SELECT * FROM todos ORDER BY categoryId ASC, sortOrder ASC, createdAt ASC")
+    List<Todo> getAllSync();
+
+    @Query("DELETE FROM todos")
+    void deleteAll();
 }

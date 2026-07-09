@@ -14,6 +14,7 @@ import com.expense.todoly.data.entity.Todo;
 import com.expense.todoly.ui.TodoViewModel;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.textfield.TextInputEditText;
@@ -52,9 +53,12 @@ public class AddTodoBottomSheet {
         Chip chipImportant = view.findViewById(R.id.chipImportant);
         Chip chipQuick = view.findViewById(R.id.chipQuick);
         MaterialButton saveButton = view.findViewById(R.id.saveButton);
+        MaterialButton cancelButton = view.findViewById(R.id.cancelButton);
+        MaterialCheckBox keepAddingCheck = view.findViewById(R.id.keepAddingCheck);
 
         final boolean isEdit = editing != null;
         sheetTitle.setText(isEdit ? R.string.edit_todo : R.string.add_todo);
+        keepAddingCheck.setVisibility(isEdit ? View.GONE : View.VISIBLE);
 
         if (isEdit) {
             titleInput.setText(editing.title);
@@ -92,6 +96,8 @@ public class AddTodoBottomSheet {
         final BottomSheetDialog dialog = new BottomSheetDialog(context);
         dialog.setContentView(view);
 
+        cancelButton.setOnClickListener(v -> dialog.dismiss());
+
         saveButton.setOnClickListener(v -> {
             String title = titleInput.getText() == null ? "" : titleInput.getText().toString().trim();
             if (title.isEmpty()) {
@@ -117,10 +123,21 @@ public class AddTodoBottomSheet {
                 editing.important = important;
                 editing.quick = quick;
                 viewModel.updateTodo(editing);
-            } else {
-                viewModel.addTodo(categoryId, title, notes, important, quick);
+                dialog.dismiss();
+                return;
             }
-            dialog.dismiss();
+
+            viewModel.addTodo(categoryId, title, notes, important, quick);
+            if (keepAddingCheck.isChecked()) {
+                titleInput.setText("");
+                titleInput.setError(null);
+                notesInput.setText("");
+                chipImportant.setChecked(false);
+                chipQuick.setChecked(false);
+                titleInput.requestFocus();
+            } else {
+                dialog.dismiss();
+            }
         });
 
         dialog.show();

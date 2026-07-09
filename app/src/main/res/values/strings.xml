@@ -6,6 +6,7 @@
     <string name="add_todo">Add Task</string>
     <string name="edit_todo">Edit Task</string>
     <string name="cancel">Cancel</string>
+    <string name="keep_adding">Add another</string>
     <string name="save">Save</string>
     <string name="delete">Delete</string>
     <string name="undo">Undo</string>

@@ -14,6 +14,9 @@
     <string name="attributes">Attributes</string>
     <string name="attr_important">Important</string>
     <string name="attr_quick">Quick</string>
+    <string name="attr_weekend">Weekend</string>
+    <string name="attr_weekday">Weekday</string>
+    <string name="day">Day</string>
 
     <string name="delete_todo">Delete task?</string>
     <string name="delete_todo_message">\"%1$s\" will be permanently deleted. Are you sure you want to continue?</string>

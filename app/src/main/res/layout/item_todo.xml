@@ -73,6 +73,28 @@
         </LinearLayout>
 
         <ImageView
+            android:id="@+id/iconWeekday"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginStart="6dp"
+            android:contentDescription="@string/attr_weekday"
+            android:src="@drawable/ic_weekday"
+            app:tint="@color/weekday"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <ImageView
+            android:id="@+id/iconWeekend"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginStart="6dp"
+            android:contentDescription="@string/attr_weekend"
+            android:src="@drawable/ic_weekend"
+            app:tint="@color/weekend"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <ImageView
             android:id="@+id/iconQuick"
             android:layout_width="20dp"
             android:layout_height="20dp"

@@ -46,6 +46,8 @@ public class HomeFragment extends Fragment {
     private View emptyState;
     private Chip chipFilterImportant;
     private Chip chipFilterQuick;
+    private Chip chipFilterWeekend;
+    private Chip chipFilterWeekday;
     private ItemTouchHelper touchHelper;
     private final List<Category> categories = new ArrayList<>();
     private final Random random = new Random();
@@ -66,6 +68,8 @@ public class HomeFragment extends Fragment {
         emptyState = view.findViewById(R.id.emptyState);
         chipFilterImportant = view.findViewById(R.id.chipFilterImportant);
         chipFilterQuick = view.findViewById(R.id.chipFilterQuick);
+        chipFilterWeekend = view.findViewById(R.id.chipFilterWeekend);
+        chipFilterWeekday = view.findViewById(R.id.chipFilterWeekday);
 
         adapter = new HomeAdapter(new HomeAdapter.Listener() {
             @Override
@@ -200,6 +204,14 @@ public class HomeFragment extends Fragment {
                 viewModel.setFilterImportant(checked));
         chipFilterQuick.setOnCheckedChangeListener((btn, checked) ->
                 viewModel.setFilterQuick(checked));
+        chipFilterWeekend.setOnCheckedChangeListener((btn, checked) -> {
+            if (checked && chipFilterWeekday.isChecked()) chipFilterWeekday.setChecked(false);
+            viewModel.setFilterWeekend(checked);
+        });
+        chipFilterWeekday.setOnCheckedChangeListener((btn, checked) -> {
+            if (checked && chipFilterWeekend.isChecked()) chipFilterWeekend.setChecked(false);
+            viewModel.setFilterWeekday(checked);
+        });
 
         viewModel.getFilterImportant().observe(getViewLifecycleOwner(), enabled -> {
             boolean on = Boolean.TRUE.equals(enabled);
@@ -208,6 +220,14 @@ public class HomeFragment extends Fragment {
         viewModel.getFilterQuick().observe(getViewLifecycleOwner(), enabled -> {
             boolean on = Boolean.TRUE.equals(enabled);
             if (chipFilterQuick.isChecked() != on) chipFilterQuick.setChecked(on);
+        });
+        viewModel.getFilterWeekend().observe(getViewLifecycleOwner(), enabled -> {
+            boolean on = Boolean.TRUE.equals(enabled);
+            if (chipFilterWeekend.isChecked() != on) chipFilterWeekend.setChecked(on);
+        });
+        viewModel.getFilterWeekday().observe(getViewLifecycleOwner(), enabled -> {
+            boolean on = Boolean.TRUE.equals(enabled);
+            if (chipFilterWeekday.isChecked() != on) chipFilterWeekday.setChecked(on);
         });
     }
 
@@ -295,7 +315,7 @@ public class HomeFragment extends Fragment {
                     Snackbar.make(requireView(), R.string.task_deleted, Snackbar.LENGTH_LONG)
                             .setAction(R.string.undo, v ->
                                     viewModel.addTodo(todo.categoryId, todo.title, todo.notes,
-                                            todo.important, todo.quick))
+                                            todo.important, todo.quick, todo.weekend, todo.weekday))
                             .show();
                 }
             }
@@ -343,7 +363,7 @@ public class HomeFragment extends Fragment {
                     Snackbar.make(requireView(), R.string.task_deleted, Snackbar.LENGTH_LONG)
                             .setAction(R.string.undo, v ->
                                     viewModel.addTodo(todo.categoryId, todo.title, todo.notes,
-                                            todo.important, todo.quick))
+                                            todo.important, todo.quick, todo.weekend, todo.weekday))
                             .show();
                 })
                 .show();

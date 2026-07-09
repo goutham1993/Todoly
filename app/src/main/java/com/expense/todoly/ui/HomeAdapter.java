@@ -96,6 +96,8 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         && a.todo.isCompleted == b.todo.isCompleted
                         && a.todo.important == b.todo.important
                         && a.todo.quick == b.todo.quick
+                        && a.todo.weekend == b.todo.weekend
+                        && a.todo.weekday == b.todo.weekday
                         && a.categoryColor.equals(b.categoryColor)
                         && equalsNullable(a.categoryName, b.categoryName);
             default:
@@ -248,6 +250,8 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         final TextView subtitle;
         final ImageView iconImportant;
         final ImageView iconQuick;
+        final ImageView iconWeekend;
+        final ImageView iconWeekday;
         final ImageView dragHandle;
 
         TodoVH(@NonNull View itemView) {
@@ -258,6 +262,8 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             subtitle = itemView.findViewById(R.id.subtitle);
             iconImportant = itemView.findViewById(R.id.iconImportant);
             iconQuick = itemView.findViewById(R.id.iconQuick);
+            iconWeekend = itemView.findViewById(R.id.iconWeekend);
+            iconWeekday = itemView.findViewById(R.id.iconWeekday);
             dragHandle = itemView.findViewById(R.id.dragHandle);
         }
 
@@ -268,6 +274,8 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
             iconImportant.setVisibility(item.todo.important ? View.VISIBLE : View.GONE);
             iconQuick.setVisibility(item.todo.quick ? View.VISIBLE : View.GONE);
+            iconWeekend.setVisibility(item.todo.weekend ? View.VISIBLE : View.GONE);
+            iconWeekday.setVisibility(item.todo.weekday ? View.VISIBLE : View.GONE);
 
             boolean reorderable = item.type == DisplayItem.TYPE_TODO_ROW;
             dragHandle.setVisibility(reorderable ? View.VISIBLE : View.GONE);

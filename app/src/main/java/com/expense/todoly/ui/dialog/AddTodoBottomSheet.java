@@ -52,6 +52,8 @@ public class AddTodoBottomSheet {
         ChipGroup chipGroup = view.findViewById(R.id.categoryChips);
         Chip chipImportant = view.findViewById(R.id.chipImportant);
         Chip chipQuick = view.findViewById(R.id.chipQuick);
+        Chip chipWeekend = view.findViewById(R.id.chipWeekend);
+        Chip chipWeekday = view.findViewById(R.id.chipWeekday);
         MaterialButton saveButton = view.findViewById(R.id.saveButton);
         MaterialButton cancelButton = view.findViewById(R.id.cancelButton);
         MaterialCheckBox keepAddingCheck = view.findViewById(R.id.keepAddingCheck);
@@ -65,6 +67,8 @@ public class AddTodoBottomSheet {
             notesInput.setText(editing.notes);
             chipImportant.setChecked(editing.important);
             chipQuick.setChecked(editing.quick);
+            chipWeekend.setChecked(editing.weekend);
+            chipWeekday.setChecked(editing.weekday);
         }
 
         int preselectedChipId = View.NO_ID;
@@ -115,6 +119,8 @@ public class AddTodoBottomSheet {
             String notes = notesText.isEmpty() ? null : notesText;
             boolean important = chipImportant.isChecked();
             boolean quick = chipQuick.isChecked();
+            boolean weekend = chipWeekend.isChecked();
+            boolean weekday = chipWeekday.isChecked();
 
             if (isEdit) {
                 editing.title = title;
@@ -122,18 +128,22 @@ public class AddTodoBottomSheet {
                 editing.categoryId = categoryId;
                 editing.important = important;
                 editing.quick = quick;
+                editing.weekend = weekend;
+                editing.weekday = weekday;
                 viewModel.updateTodo(editing);
                 dialog.dismiss();
                 return;
             }
 
-            viewModel.addTodo(categoryId, title, notes, important, quick);
+            viewModel.addTodo(categoryId, title, notes, important, quick, weekend, weekday);
             if (keepAddingCheck.isChecked()) {
                 titleInput.setText("");
                 titleInput.setError(null);
                 notesInput.setText("");
                 chipImportant.setChecked(false);
                 chipQuick.setChecked(false);
+                chipWeekend.setChecked(false);
+                chipWeekday.setChecked(false);
                 titleInput.requestFocus();
             } else {
                 dialog.dismiss();

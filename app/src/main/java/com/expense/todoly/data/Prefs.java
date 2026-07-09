@@ -13,6 +13,7 @@ public final class Prefs {
 
     private static final String PREFS_NAME = "todoly_prefs";
     private static final String KEY_THEME_MODE = "theme_mode";
+    private static final String KEY_LAST_ROLLOVER_DAY = "last_rollover_day";
 
     private Prefs() {
     }
@@ -44,5 +45,13 @@ public final class Prefs {
 
     public static void applyTheme(Context context) {
         AppCompatDelegate.setDefaultNightMode(toNightMode(getThemeMode(context)));
+    }
+
+    public static int getLastRolloverDay(Context context) {
+        return prefs(context).getInt(KEY_LAST_ROLLOVER_DAY, 0);
+    }
+
+    public static void setLastRolloverDay(Context context, int dayEpoch) {
+        prefs(context).edit().putInt(KEY_LAST_ROLLOVER_DAY, dayEpoch).apply();
     }
 }

@@ -42,6 +42,10 @@ public class Todo {
 
     public boolean timesensitive;
 
+    public boolean today;
+
+    public boolean tomorrow;
+
     public long createdAt;
 
     public long completedAt;
@@ -58,6 +62,8 @@ public class Todo {
         this.weekend = false;
         this.weekday = false;
         this.timesensitive = false;
+        this.today = false;
+        this.tomorrow = false;
         this.createdAt = createdAt;
         this.completedAt = 0L;
         this.sortOrder = sortOrder;

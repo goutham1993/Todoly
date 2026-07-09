@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="widget_background">@color/surface</color>
+    <color name="widget_header_bg">@color/brand_primary_container</color>
+    <color name="widget_on_surface">@color/on_surface</color>
+    <color name="widget_on_surface_variant">@color/on_surface_variant</color>
+    <color name="widget_primary">@color/brand_primary</color>
+    <color name="widget_outline">@color/outline</color>
+    <color name="widget_item_bg">@color/surface_variant</color>
+    <color name="widget_checkbox_stroke">@color/on_surface_variant</color>
+    <color name="widget_badge_bg">@color/brand_primary</color>
+    <color name="widget_badge_text">@color/brand_on_primary</color>
+</resources>

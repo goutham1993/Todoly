@@ -51,6 +51,8 @@ public class HomeFragment extends Fragment {
     private Chip chipFilterWeekend;
     private Chip chipFilterWeekday;
     private Chip chipFilterTimesensitive;
+    private Chip chipFilterToday;
+    private Chip chipFilterTomorrow;
     private ItemTouchHelper touchHelper;
     private final List<Category> categories = new ArrayList<>();
     private final Random random = new Random();
@@ -76,6 +78,8 @@ public class HomeFragment extends Fragment {
         chipFilterWeekend = view.findViewById(R.id.chipFilterWeekend);
         chipFilterWeekday = view.findViewById(R.id.chipFilterWeekday);
         chipFilterTimesensitive = view.findViewById(R.id.chipFilterTimesensitive);
+        chipFilterToday = view.findViewById(R.id.chipFilterToday);
+        chipFilterTomorrow = view.findViewById(R.id.chipFilterTomorrow);
 
         adapter = new HomeAdapter(new HomeAdapter.Listener() {
             @Override
@@ -226,6 +230,10 @@ public class HomeFragment extends Fragment {
         });
         chipFilterTimesensitive.setOnCheckedChangeListener((btn, checked) ->
                 viewModel.setFilterTimesensitive(checked));
+        chipFilterToday.setOnCheckedChangeListener((btn, checked) ->
+                viewModel.setFilterToday(checked));
+        chipFilterTomorrow.setOnCheckedChangeListener((btn, checked) ->
+                viewModel.setFilterTomorrow(checked));
 
         viewModel.getFilterImportant().observe(getViewLifecycleOwner(), enabled -> {
             boolean on = Boolean.TRUE.equals(enabled);
@@ -246,6 +254,14 @@ public class HomeFragment extends Fragment {
         viewModel.getFilterTimesensitive().observe(getViewLifecycleOwner(), enabled -> {
             boolean on = Boolean.TRUE.equals(enabled);
             if (chipFilterTimesensitive.isChecked() != on) chipFilterTimesensitive.setChecked(on);
+        });
+        viewModel.getFilterToday().observe(getViewLifecycleOwner(), enabled -> {
+            boolean on = Boolean.TRUE.equals(enabled);
+            if (chipFilterToday.isChecked() != on) chipFilterToday.setChecked(on);
+        });
+        viewModel.getFilterTomorrow().observe(getViewLifecycleOwner(), enabled -> {
+            boolean on = Boolean.TRUE.equals(enabled);
+            if (chipFilterTomorrow.isChecked() != on) chipFilterTomorrow.setChecked(on);
         });
     }
 
@@ -334,7 +350,7 @@ public class HomeFragment extends Fragment {
                             .setAction(R.string.undo, v ->
                                     viewModel.addTodo(todo.categoryId, todo.title, todo.notes,
                                             todo.important, todo.quick, todo.weekend, todo.weekday,
-                                            todo.timesensitive))
+                                            todo.timesensitive, todo.today, todo.tomorrow))
                             .show();
                 }
             }
@@ -383,7 +399,7 @@ public class HomeFragment extends Fragment {
                             .setAction(R.string.undo, v ->
                                     viewModel.addTodo(todo.categoryId, todo.title, todo.notes,
                                             todo.important, todo.quick, todo.weekend, todo.weekday,
-                                            todo.timesensitive))
+                                            todo.timesensitive, todo.today, todo.tomorrow))
                             .show();
                 })
                 .show();

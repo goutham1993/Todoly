@@ -26,14 +26,14 @@ import java.util.zip.ZipOutputStream;
  */
 public final class BackupManager {
 
-    public static final int BACKUP_VERSION = 3;
+    public static final int BACKUP_VERSION = 4;
 
     private static final String CATEGORIES_CSV = "categories.csv";
     private static final String TODOS_CSV = "todos.csv";
 
     private static final String CATEGORY_HEADER = "id,name,colorHex,sortOrder,createdAt";
     private static final String TODO_HEADER =
-            "id,categoryId,title,notes,isCompleted,important,quick,weekend,weekday,timesensitive,createdAt,completedAt,sortOrder";
+            "id,categoryId,title,notes,isCompleted,important,quick,weekend,weekday,timesensitive,today,tomorrow,createdAt,completedAt,sortOrder";
 
     private BackupManager() {
     }
@@ -80,6 +80,8 @@ public final class BackupManager {
             o.put("weekend", t.weekend);
             o.put("weekday", t.weekday);
             o.put("timesensitive", t.timesensitive);
+            o.put("today", t.today);
+            o.put("tomorrow", t.tomorrow);
             o.put("createdAt", t.createdAt);
             o.put("completedAt", t.completedAt);
             o.put("sortOrder", t.sortOrder);
@@ -129,6 +131,8 @@ public final class BackupManager {
                 t.weekend = o.optBoolean("weekend", false);
                 t.weekday = o.optBoolean("weekday", false);
                 t.timesensitive = o.optBoolean("timesensitive", false);
+                t.today = o.optBoolean("today", false);
+                t.tomorrow = o.optBoolean("tomorrow", false);
                 t.completedAt = o.optLong("completedAt", 0L);
                 todos.add(t);
             }
@@ -198,6 +202,8 @@ public final class BackupManager {
                     .append(t.weekend ? 1 : 0).append(',')
                     .append(t.weekday ? 1 : 0).append(',')
                     .append(t.timesensitive ? 1 : 0).append(',')
+                    .append(t.today ? 1 : 0).append(',')
+                    .append(t.tomorrow ? 1 : 0).append(',')
                     .append(t.createdAt).append(',')
                     .append(t.completedAt).append(',')
                     .append(t.sortOrder).append('\n');
@@ -230,12 +236,11 @@ public final class BackupManager {
         for (int i = 1; i < rows.size(); i++) {
             List<String> f = rows.get(i);
             if (f.size() < 12) continue;
-            // Backups from before the timesensitive column have 12 fields; newer ones have 13
-            // with timesensitive inserted at index 9, shifting the trailing columns by one.
             boolean hasTimesensitive = f.size() >= 13;
-            int createdIdx = hasTimesensitive ? 10 : 9;
-            int completedIdx = hasTimesensitive ? 11 : 10;
-            int sortIdx = hasTimesensitive ? 12 : 11;
+            boolean hasTodayTomorrow = f.size() >= 15;
+            int createdIdx = hasTodayTomorrow ? 12 : (hasTimesensitive ? 10 : 9);
+            int completedIdx = hasTodayTomorrow ? 13 : (hasTimesensitive ? 11 : 10);
+            int sortIdx = hasTodayTomorrow ? 14 : (hasTimesensitive ? 12 : 11);
             String notes = f.get(3).isEmpty() ? null : f.get(3);
             Todo t = new Todo(
                     parseLong(f.get(1), 0L),
@@ -250,6 +255,8 @@ public final class BackupManager {
             t.weekend = "1".equals(f.get(7));
             t.weekday = "1".equals(f.get(8));
             t.timesensitive = hasTimesensitive && "1".equals(f.get(9));
+            t.today = hasTodayTomorrow && "1".equals(f.get(10));
+            t.tomorrow = hasTodayTomorrow && "1".equals(f.get(11));
             t.completedAt = parseLong(f.get(completedIdx), 0L);
             result.add(t);
         }

@@ -17,6 +17,8 @@
     <string name="attr_weekend">Weekend</string>
     <string name="attr_weekday">Weekday</string>
     <string name="attr_timesensitive">Due Soon</string>
+    <string name="attr_today">Today</string>
+    <string name="attr_tomorrow">Tomorrow</string>
     <string name="day">Day</string>
 
     <string name="delete_todo">Delete task?</string>
@@ -69,6 +71,11 @@
     <string name="import_success">Imported %1$d categories and %2$d tasks</string>
     <string name="import_failed">Import failed: %1$s</string>
     <string name="import_unsupported">Unsupported file. Choose a .json or .zip backup.</string>
+
+    <string name="widget_today_title">Today</string>
+    <string name="widget_subtitle">Tap a task to open Todoly</string>
+    <string name="widget_empty">All done for today</string>
+    <string name="widget_complete">Mark complete</string>
 
     <string name="empty_title">Let\'s get organized</string>
     <string name="empty_subtitle">You don\'t have any categories yet. Tap the + button to create your first category, then start adding tasks.</string>

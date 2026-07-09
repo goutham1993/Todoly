@@ -99,6 +99,8 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         && a.todo.weekend == b.todo.weekend
                         && a.todo.weekday == b.todo.weekday
                         && a.todo.timesensitive == b.todo.timesensitive
+                        && a.todo.today == b.todo.today
+                        && a.todo.tomorrow == b.todo.tomorrow
                         && a.categoryColor.equals(b.categoryColor)
                         && equalsNullable(a.categoryName, b.categoryName);
             default:
@@ -251,6 +253,8 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         final TextView subtitle;
         final ImageView iconImportant;
         final ImageView iconQuick;
+        final ImageView iconToday;
+        final ImageView iconTomorrow;
         final ImageView iconWeekend;
         final ImageView iconWeekday;
         final ImageView iconTimesensitive;
@@ -264,6 +268,8 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             subtitle = itemView.findViewById(R.id.subtitle);
             iconImportant = itemView.findViewById(R.id.iconImportant);
             iconQuick = itemView.findViewById(R.id.iconQuick);
+            iconToday = itemView.findViewById(R.id.iconToday);
+            iconTomorrow = itemView.findViewById(R.id.iconTomorrow);
             iconWeekend = itemView.findViewById(R.id.iconWeekend);
             iconWeekday = itemView.findViewById(R.id.iconWeekday);
             iconTimesensitive = itemView.findViewById(R.id.iconTimesensitive);
@@ -277,6 +283,8 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
             iconImportant.setVisibility(item.todo.important ? View.VISIBLE : View.GONE);
             iconQuick.setVisibility(item.todo.quick ? View.VISIBLE : View.GONE);
+            iconToday.setVisibility(item.todo.today ? View.VISIBLE : View.GONE);
+            iconTomorrow.setVisibility(item.todo.tomorrow ? View.VISIBLE : View.GONE);
             iconWeekend.setVisibility(item.todo.weekend ? View.VISIBLE : View.GONE);
             iconWeekday.setVisibility(item.todo.weekday ? View.VISIBLE : View.GONE);
             iconTimesensitive.setVisibility(item.todo.timesensitive ? View.VISIBLE : View.GONE);

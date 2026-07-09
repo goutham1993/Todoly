@@ -11,11 +11,13 @@ import com.expense.todoly.data.dao.TodoDao;
 import com.expense.todoly.data.entity.Category;
 import com.expense.todoly.data.entity.Todo;
 import com.expense.todoly.data.model.CategoryWithCount;
+import com.expense.todoly.widget.WidgetHelper;
 
 import java.util.List;
 
 public class AppRepository {
 
+    private final Context appContext;
     private final AppDatabase db;
     private final CategoryDao categoryDao;
     private final TodoDao todoDao;
@@ -28,13 +30,28 @@ public class AppRepository {
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     public AppRepository(Context context) {
-        db = AppDatabase.getInstance(context);
+        appContext = context.getApplicationContext();
+        db = AppDatabase.getInstance(appContext);
         categoryDao = db.categoryDao();
         todoDao = db.todoDao();
         categories = categoryDao.observeAll();
         categoriesWithCounts = categoryDao.observeCategoriesWithCounts();
         activeTodos = todoDao.observeActive();
         completedTodos = todoDao.observeCompleted();
+        runDayRolloverIfNeeded(appContext);
+    }
+
+    public void runDayRolloverIfNeeded(final Context context) {
+        AppDatabase.IO_EXECUTOR.execute(() -> {
+            boolean rolled = DayRollover.runIfNeeded(context, todoDao);
+            if (rolled) {
+                WidgetHelper.refreshWidgets(context);
+            }
+        });
+    }
+
+    private void refreshWidgets() {
+        WidgetHelper.refreshWidgets(appContext);
     }
 
     public LiveData<List<Category>> getCategories() {
@@ -64,7 +81,8 @@ public class AppRepository {
     public void addTodo(final long categoryId, final String title, final String notes,
                         final boolean important, final boolean quick,
                         final boolean weekend, final boolean weekday,
-                        final boolean timesensitive) {
+                        final boolean timesensitive, final boolean today,
+                        final boolean tomorrow) {
         AppDatabase.IO_EXECUTOR.execute(() -> {
             int order = todoDao.maxSortOrder(categoryId) + 1;
             Todo todo = new Todo(categoryId, title, notes, System.currentTimeMillis(), order);
@@ -73,7 +91,10 @@ public class AppRepository {
             todo.weekend = weekend;
             todo.weekday = weekday;
             todo.timesensitive = timesensitive;
+            todo.today = today;
+            todo.tomorrow = tomorrow;
             todoDao.insert(todo);
+            refreshWidgets();
         });
     }
 
@@ -86,12 +107,17 @@ public class AppRepository {
     }
 
     public void setCompleted(final long todoId, final boolean completed) {
-        AppDatabase.IO_EXECUTOR.execute(() ->
-                todoDao.setCompleted(todoId, completed, completed ? System.currentTimeMillis() : 0L));
+        AppDatabase.IO_EXECUTOR.execute(() -> {
+            todoDao.setCompleted(todoId, completed, completed ? System.currentTimeMillis() : 0L);
+            refreshWidgets();
+        });
     }
 
     public void deleteTodo(final Todo todo) {
-        AppDatabase.IO_EXECUTOR.execute(() -> todoDao.delete(todo));
+        AppDatabase.IO_EXECUTOR.execute(() -> {
+            todoDao.delete(todo);
+            refreshWidgets();
+        });
     }
 
     public void deleteCategory(final Category category) {
@@ -103,7 +129,10 @@ public class AppRepository {
     }
 
     public void updateTodo(final Todo todo) {
-        AppDatabase.IO_EXECUTOR.execute(() -> todoDao.update(todo));
+        AppDatabase.IO_EXECUTOR.execute(() -> {
+            todoDao.update(todo);
+            refreshWidgets();
+        });
     }
 
     public interface ExportCallback {
@@ -136,6 +165,7 @@ public class AppRepository {
         AppDatabase.IO_EXECUTOR.execute(() -> {
             try {
                 db.replaceAll(importedCategories, importedTodos);
+                refreshWidgets();
                 final int categoryCount = importedCategories == null ? 0 : importedCategories.size();
                 final int todoCount = importedTodos == null ? 0 : importedTodos.size();
                 mainHandler.post(() -> callback.onResult(categoryCount, todoCount));

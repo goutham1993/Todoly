@@ -28,6 +28,24 @@
             android:label="@string/settings"
             android:parentActivityName=".MainActivity"
             android:theme="@style/Theme.Todoly" />
+
+        <receiver
+            android:name=".widget.TodolyWidgetProvider"
+            android:exported="false"
+            android:label="@string/widget_today_title">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.expense.todoly.widget.ACTION_WIDGET_ITEM" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/todoly_widget_info" />
+        </receiver>
+
+        <service
+            android:name=".widget.TodolyWidgetService"
+            android:exported="false"
+            android:permission="android.permission.BIND_REMOTEVIEWS" />
     </application>
 
 </manifest>

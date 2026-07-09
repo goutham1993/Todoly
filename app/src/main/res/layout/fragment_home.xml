@@ -115,6 +115,26 @@
             app:singleSelection="false">
 
             <com.google.android.material.chip.Chip
+                android:id="@+id/chipFilterToday"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/attr_today"
+                app:chipIcon="@drawable/ic_today"
+                app:chipIconTint="@color/today"
+                app:chipIconVisible="true" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipFilterTomorrow"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/attr_tomorrow"
+                app:chipIcon="@drawable/ic_tomorrow"
+                app:chipIconTint="@color/tomorrow"
+                app:chipIconVisible="true" />
+
+            <com.google.android.material.chip.Chip
                 android:id="@+id/chipFilterImportant"
                 style="@style/Widget.Material3.Chip.Filter"
                 android:layout_width="wrap_content"

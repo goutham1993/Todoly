@@ -55,4 +55,16 @@ public interface TodoDao {
 
     @Query("DELETE FROM todos")
     void deleteAll();
+
+    @Query("UPDATE todos SET tomorrow = 0 WHERE tomorrow = 1")
+    void clearTomorrowFlags();
+
+    @Query("UPDATE todos SET today = 1, tomorrow = 0 WHERE tomorrow = 1 AND today = 0")
+    void promoteTomorrowOnlyToToday();
+
+    @Query("SELECT * FROM todos WHERE today = 1 AND isCompleted = 0 ORDER BY sortOrder ASC, createdAt ASC")
+    List<Todo> getTodayActiveSync();
+
+    @Query("SELECT COUNT(*) FROM todos WHERE today = 1 AND isCompleted = 0")
+    int countTodayActive();
 }

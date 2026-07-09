@@ -45,6 +45,7 @@ public class TodoViewModel extends AndroidViewModel {
 
     private final MutableLiveData<Event<Integer>> celebrationEvent = new MutableLiveData<>();
     private int completionStreak = 0;
+    private boolean initialCollapseApplied = false;
 
     public TodoViewModel(@NonNull Application application) {
         super(application);
@@ -56,7 +57,10 @@ public class TodoViewModel extends AndroidViewModel {
         pendingCount = Transformations.map(activeTodos, list -> list == null ? 0 : list.size());
         completedCount = Transformations.map(completedTodos, list -> list == null ? 0 : list.size());
 
-        displayItems.addSource(categoriesWithCounts, v -> rebuild());
+        displayItems.addSource(categoriesWithCounts, v -> {
+            applyInitialCollapse(v);
+            rebuild();
+        });
         displayItems.addSource(activeTodos, v -> rebuild());
         displayItems.addSource(completedTodos, v -> rebuild());
         displayItems.addSource(viewMode, v -> rebuild());
@@ -107,6 +111,16 @@ public class TodoViewModel extends AndroidViewModel {
 
     public LiveData<Boolean> getFilterWeekday() {
         return filterWeekday;
+    }
+
+    private void applyInitialCollapse(List<CategoryWithCount> cats) {
+        if (initialCollapseApplied || cats == null || cats.isEmpty()) return;
+        initialCollapseApplied = true;
+        Set<Long> collapsed = new HashSet<>();
+        for (CategoryWithCount c : cats) {
+            collapsed.add(c.id);
+        }
+        collapsedCategoryIds.setValue(collapsed);
     }
 
     private void rebuild() {

@@ -34,6 +34,8 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         void onTodoClick(DisplayItem item);
 
+        void onTodoLongClick(DisplayItem item);
+
         void onAddTaskClick(long categoryId);
 
         void onStartDrag(RecyclerView.ViewHolder viewHolder);
@@ -288,6 +290,10 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             }
 
             itemView.setOnClickListener(v -> listener.onTodoClick(item));
+            itemView.setOnLongClickListener(v -> {
+                listener.onTodoLongClick(item);
+                return true;
+            });
 
             checkbox.setOnCheckedChangeListener(null);
             checkbox.setChecked(item.todo.isCompleted);

@@ -83,6 +83,11 @@ public class HomeFragment extends Fragment {
             }
 
             @Override
+            public void onTodoLongClick(DisplayItem item) {
+                confirmDeleteTodo(item.todo);
+            }
+
+            @Override
             public void onAddTaskClick(long categoryId) {
                 AddTodoBottomSheet.show(requireContext(), viewModel,
                         new ArrayList<>(categories), categoryId);
@@ -252,6 +257,23 @@ public class HomeFragment extends Fragment {
             }
         });
         touchHelper.attachToRecyclerView(recycler);
+    }
+
+    private void confirmDeleteTodo(final Todo todo) {
+        if (todo == null) return;
+        new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.delete_todo)
+                .setMessage(getString(R.string.delete_todo_message, todo.title))
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.delete, (d, w) -> {
+                    viewModel.deleteTodo(todo);
+                    Snackbar.make(requireView(), R.string.task_deleted, Snackbar.LENGTH_LONG)
+                            .setAction(R.string.undo, v ->
+                                    viewModel.addTodo(todo.categoryId, todo.title, todo.notes,
+                                            todo.important, todo.quick))
+                            .show();
+                })
+                .show();
     }
 
     private void confirmDeleteCategory(com.expense.todoly.data.model.CategoryWithCount category) {

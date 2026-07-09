@@ -15,6 +15,9 @@
     <string name="attr_important">Important</string>
     <string name="attr_quick">Quick</string>
 
+    <string name="delete_todo">Delete task?</string>
+    <string name="delete_todo_message">\"%1$s\" will be permanently deleted. Are you sure you want to continue?</string>
+
     <string name="delete_category">Delete category?</string>
     <string name="delete_category_empty">\"%1$s\" will be permanently deleted. Are you sure you want to continue?</string>
     <string name="delete_category_with_todos">\"%1$s\" and its %2$d task(s) will be permanently deleted. This cannot be undone. Are you sure you want to continue?</string>

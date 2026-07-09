@@ -43,4 +43,29 @@
     <string name="cd_category_color">Category color</string>
     <string name="cd_expand">Expand or collapse</string>
     <string name="drag_to_reorder">Drag to reorder</string>
+
+    <string-array name="streak_messages">
+        <item>You\'re on fire!</item>
+        <item>Keep the momentum going!</item>
+        <item>Crushing it!</item>
+        <item>Unstoppable!</item>
+        <item>Look at you go!</item>
+        <item>On a roll!</item>
+    </string-array>
+
+    <string name="celebration_title">Nice work!</string>
+    <string name="celebration_subtitle">%1$d tasks done in a row</string>
+    <string name="celebration_dismiss">Keep going!</string>
+    <string name="celebration_default_emoji">\uD83C\uDF89</string>
+
+    <string-array name="celebration_emojis">
+        <item>\uD83C\uDF89</item>
+        <item>\uD83C\uDF8A</item>
+        <item>\uD83E\uDD73</item>
+        <item>\uD83D\uDD25</item>
+        <item>\uD83D\uDE80</item>
+        <item>\u2B50</item>
+        <item>\uD83D\uDCAA</item>
+        <item>\uD83C\uDFC6</item>
+    </string-array>
 </resources>

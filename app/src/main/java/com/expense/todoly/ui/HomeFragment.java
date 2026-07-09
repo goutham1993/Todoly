@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,7 +26,17 @@ import com.google.android.material.chip.Chip;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
+
+import nl.dionsegijn.konfetti.core.Party;
+import nl.dionsegijn.konfetti.core.PartyFactory;
+import nl.dionsegijn.konfetti.core.Position;
+import nl.dionsegijn.konfetti.core.emitter.Emitter;
+import nl.dionsegijn.konfetti.core.emitter.EmitterConfig;
+import nl.dionsegijn.konfetti.xml.KonfettiView;
 
 public class HomeFragment extends Fragment {
 
@@ -37,6 +48,7 @@ public class HomeFragment extends Fragment {
     private Chip chipFilterQuick;
     private ItemTouchHelper touchHelper;
     private final List<Category> categories = new ArrayList<>();
+    private final Random random = new Random();
 
     @Nullable
     @Override
@@ -119,6 +131,67 @@ public class HomeFragment extends Fragment {
         viewModel.getDisplayItems().observe(getViewLifecycleOwner(), items -> {
             adapter.submit(items);
             emptyState.setVisibility(items.isEmpty() ? View.VISIBLE : View.GONE);
+        });
+
+        viewModel.getCelebrationEvent().observe(getViewLifecycleOwner(), event -> {
+            if (event == null) return;
+            Integer streak = event.getIfNotHandled();
+            if (streak != null) celebrate(streak);
+        });
+    }
+
+    private void celebrate(int streak) {
+        View content = LayoutInflater.from(requireContext())
+                .inflate(R.layout.dialog_celebration, (ViewGroup) requireView(), false);
+
+        String[] emojis = getResources().getStringArray(R.array.celebration_emojis);
+        String[] messages = getResources().getStringArray(R.array.streak_messages);
+
+        TextView emoji = content.findViewById(R.id.celebrationEmoji);
+        TextView title = content.findViewById(R.id.celebrationTitle);
+        TextView message = content.findViewById(R.id.celebrationMessage);
+        View card = content.findViewById(R.id.celebrationCard);
+        final KonfettiView konfetti = content.findViewById(R.id.celebrationKonfetti);
+
+        if (emojis.length > 0) emoji.setText(emojis[random.nextInt(emojis.length)]);
+        if (messages.length > 0) title.setText(messages[random.nextInt(messages.length)]);
+        message.setText(getString(R.string.celebration_subtitle, streak));
+
+        final androidx.appcompat.app.AlertDialog dialog =
+                new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                        .setView(content)
+                        .setCancelable(true)
+                        .create();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(
+                    new android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT));
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT);
+        }
+
+        content.findViewById(R.id.celebrationButton).setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
+
+        card.setScaleX(0.7f);
+        card.setScaleY(0.7f);
+        card.setAlpha(0f);
+        card.animate()
+                .scaleX(1f).scaleY(1f).alpha(1f)
+                .setDuration(320L)
+                .setInterpolator(new android.view.animation.OvershootInterpolator(1.4f))
+                .start();
+
+        konfetti.post(() -> {
+            EmitterConfig emitterConfig = new Emitter(300L, TimeUnit.MILLISECONDS).max(120);
+            Party party = new PartyFactory(emitterConfig)
+                    .spread(360)
+                    .colors(Arrays.asList(0xFFFCE18A, 0xFFFF726D, 0xFFB48DEF, 0xFFF4306D, 0xFF2F85FF))
+                    .setSpeedBetween(0f, 30f)
+                    .position(new Position.Relative(0.5, 0.3))
+                    .build();
+            konfetti.start(party);
         });
     }
 

@@ -38,6 +38,9 @@ public class TodoViewModel extends AndroidViewModel {
 
     private final MediatorLiveData<List<DisplayItem>> displayItems = new MediatorLiveData<>();
 
+    private final MutableLiveData<Event<Integer>> celebrationEvent = new MutableLiveData<>();
+    private int completionStreak = 0;
+
     public TodoViewModel(@NonNull Application application) {
         super(application);
         repository = new AppRepository(application);
@@ -59,6 +62,10 @@ public class TodoViewModel extends AndroidViewModel {
 
     public LiveData<List<DisplayItem>> getDisplayItems() {
         return displayItems;
+    }
+
+    public LiveData<Event<Integer>> getCelebrationEvent() {
+        return celebrationEvent;
     }
 
     public LiveData<List<Category>> getCategories() {
@@ -202,6 +209,14 @@ public class TodoViewModel extends AndroidViewModel {
 
     public void toggleComplete(Todo todo, boolean completed) {
         repository.setCompleted(todo.id, completed);
+        if (completed) {
+            completionStreak++;
+            if (completionStreak % 3 == 0) {
+                celebrationEvent.setValue(new Event<>(completionStreak));
+            }
+        } else {
+            completionStreak = 0;
+        }
     }
 
     public void deleteTodo(Todo todo) {

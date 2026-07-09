@@ -26,6 +26,7 @@
     <string name="delete_category_with_todos">\"%1$s\" and its %2$d task(s) will be permanently deleted. This cannot be undone. Are you sure you want to continue?</string>
 
     <string name="completed">Completed</string>
+    <string name="pending">Pending</string>
     <string name="category_name_hint">Category name</string>
     <string name="todo_title_hint">What needs to be done?</string>
     <string name="todo_notes_hint">Notes (optional)</string>

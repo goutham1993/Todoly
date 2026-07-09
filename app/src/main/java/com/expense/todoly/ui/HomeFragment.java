@@ -44,6 +44,8 @@ public class HomeFragment extends Fragment {
     private HomeAdapter adapter;
     private RecyclerView recycler;
     private View emptyState;
+    private TextView pendingCount;
+    private TextView completedCount;
     private Chip chipFilterImportant;
     private Chip chipFilterQuick;
     private Chip chipFilterWeekend;
@@ -66,6 +68,8 @@ public class HomeFragment extends Fragment {
 
         recycler = view.findViewById(R.id.recycler);
         emptyState = view.findViewById(R.id.emptyState);
+        pendingCount = view.findViewById(R.id.pendingCount);
+        completedCount = view.findViewById(R.id.completedCount);
         chipFilterImportant = view.findViewById(R.id.chipFilterImportant);
         chipFilterQuick = view.findViewById(R.id.chipFilterQuick);
         chipFilterWeekend = view.findViewById(R.id.chipFilterWeekend);
@@ -136,6 +140,12 @@ public class HomeFragment extends Fragment {
             adapter.submit(items);
             emptyState.setVisibility(items.isEmpty() ? View.VISIBLE : View.GONE);
         });
+
+        viewModel.getPendingCount().observe(getViewLifecycleOwner(), count ->
+                pendingCount.setText(String.valueOf(count == null ? 0 : count)));
+
+        viewModel.getCompletedCount().observe(getViewLifecycleOwner(), count ->
+                completedCount.setText(String.valueOf(count == null ? 0 : count)));
 
         viewModel.getCelebrationEvent().observe(getViewLifecycleOwner(), event -> {
             if (event == null) return;

@@ -7,6 +7,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Transformations;
 
 import com.expense.todoly.data.AppRepository;
 import com.expense.todoly.data.entity.Category;
@@ -28,6 +29,8 @@ public class TodoViewModel extends AndroidViewModel {
     private final LiveData<List<Category>> categories;
     private final LiveData<List<Todo>> activeTodos;
     private final LiveData<List<Todo>> completedTodos;
+    private final LiveData<Integer> pendingCount;
+    private final LiveData<Integer> completedCount;
 
     private final MutableLiveData<ViewMode> viewMode = new MutableLiveData<>(ViewMode.GROUPED);
     private final MutableLiveData<Set<Long>> collapsedCategoryIds = new MutableLiveData<>(new HashSet<>());
@@ -50,6 +53,8 @@ public class TodoViewModel extends AndroidViewModel {
         categories = repository.getCategories();
         activeTodos = repository.getActiveTodos();
         completedTodos = repository.getCompletedTodos();
+        pendingCount = Transformations.map(activeTodos, list -> list == null ? 0 : list.size());
+        completedCount = Transformations.map(completedTodos, list -> list == null ? 0 : list.size());
 
         displayItems.addSource(categoriesWithCounts, v -> rebuild());
         displayItems.addSource(activeTodos, v -> rebuild());
@@ -74,6 +79,14 @@ public class TodoViewModel extends AndroidViewModel {
 
     public LiveData<List<Category>> getCategories() {
         return categories;
+    }
+
+    public LiveData<Integer> getPendingCount() {
+        return pendingCount;
+    }
+
+    public LiveData<Integer> getCompletedCount() {
+        return completedCount;
     }
 
     public LiveData<ViewMode> getViewMode() {

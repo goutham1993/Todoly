@@ -50,6 +50,7 @@ public class HomeFragment extends Fragment {
     private Chip chipFilterQuick;
     private Chip chipFilterWeekend;
     private Chip chipFilterWeekday;
+    private Chip chipFilterTimesensitive;
     private ItemTouchHelper touchHelper;
     private final List<Category> categories = new ArrayList<>();
     private final Random random = new Random();
@@ -74,6 +75,7 @@ public class HomeFragment extends Fragment {
         chipFilterQuick = view.findViewById(R.id.chipFilterQuick);
         chipFilterWeekend = view.findViewById(R.id.chipFilterWeekend);
         chipFilterWeekday = view.findViewById(R.id.chipFilterWeekday);
+        chipFilterTimesensitive = view.findViewById(R.id.chipFilterTimesensitive);
 
         adapter = new HomeAdapter(new HomeAdapter.Listener() {
             @Override
@@ -222,6 +224,8 @@ public class HomeFragment extends Fragment {
             if (checked && chipFilterWeekend.isChecked()) chipFilterWeekend.setChecked(false);
             viewModel.setFilterWeekday(checked);
         });
+        chipFilterTimesensitive.setOnCheckedChangeListener((btn, checked) ->
+                viewModel.setFilterTimesensitive(checked));
 
         viewModel.getFilterImportant().observe(getViewLifecycleOwner(), enabled -> {
             boolean on = Boolean.TRUE.equals(enabled);
@@ -238,6 +242,10 @@ public class HomeFragment extends Fragment {
         viewModel.getFilterWeekday().observe(getViewLifecycleOwner(), enabled -> {
             boolean on = Boolean.TRUE.equals(enabled);
             if (chipFilterWeekday.isChecked() != on) chipFilterWeekday.setChecked(on);
+        });
+        viewModel.getFilterTimesensitive().observe(getViewLifecycleOwner(), enabled -> {
+            boolean on = Boolean.TRUE.equals(enabled);
+            if (chipFilterTimesensitive.isChecked() != on) chipFilterTimesensitive.setChecked(on);
         });
     }
 
@@ -325,7 +333,8 @@ public class HomeFragment extends Fragment {
                     Snackbar.make(requireView(), R.string.task_deleted, Snackbar.LENGTH_LONG)
                             .setAction(R.string.undo, v ->
                                     viewModel.addTodo(todo.categoryId, todo.title, todo.notes,
-                                            todo.important, todo.quick, todo.weekend, todo.weekday))
+                                            todo.important, todo.quick, todo.weekend, todo.weekday,
+                                            todo.timesensitive))
                             .show();
                 }
             }
@@ -373,7 +382,8 @@ public class HomeFragment extends Fragment {
                     Snackbar.make(requireView(), R.string.task_deleted, Snackbar.LENGTH_LONG)
                             .setAction(R.string.undo, v ->
                                     viewModel.addTodo(todo.categoryId, todo.title, todo.notes,
-                                            todo.important, todo.quick, todo.weekend, todo.weekday))
+                                            todo.important, todo.quick, todo.weekend, todo.weekday,
+                                            todo.timesensitive))
                             .show();
                 })
                 .show();

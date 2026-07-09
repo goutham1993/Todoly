@@ -135,6 +135,16 @@
                 app:chipIconVisible="true" />
 
             <com.google.android.material.chip.Chip
+                android:id="@+id/chipFilterTimesensitive"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/attr_timesensitive"
+                app:chipIcon="@drawable/ic_clock"
+                app:chipIconTint="@color/timesensitive"
+                app:chipIconVisible="true" />
+
+            <com.google.android.material.chip.Chip
                 android:id="@+id/chipFilterWeekend"
                 style="@style/Widget.Material3.Chip.Filter"
                 android:layout_width="wrap_content"

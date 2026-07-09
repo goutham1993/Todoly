@@ -16,6 +16,7 @@
     <string name="attr_quick">Quick</string>
     <string name="attr_weekend">Weekend</string>
     <string name="attr_weekday">Weekday</string>
+    <string name="attr_timesensitive">Due Soon</string>
     <string name="day">Day</string>
 
     <string name="delete_todo">Delete task?</string>

@@ -98,6 +98,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         && a.todo.quick == b.todo.quick
                         && a.todo.weekend == b.todo.weekend
                         && a.todo.weekday == b.todo.weekday
+                        && a.todo.timesensitive == b.todo.timesensitive
                         && a.categoryColor.equals(b.categoryColor)
                         && equalsNullable(a.categoryName, b.categoryName);
             default:
@@ -252,6 +253,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         final ImageView iconQuick;
         final ImageView iconWeekend;
         final ImageView iconWeekday;
+        final ImageView iconTimesensitive;
         final ImageView dragHandle;
 
         TodoVH(@NonNull View itemView) {
@@ -264,6 +266,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             iconQuick = itemView.findViewById(R.id.iconQuick);
             iconWeekend = itemView.findViewById(R.id.iconWeekend);
             iconWeekday = itemView.findViewById(R.id.iconWeekday);
+            iconTimesensitive = itemView.findViewById(R.id.iconTimesensitive);
             dragHandle = itemView.findViewById(R.id.dragHandle);
         }
 
@@ -276,6 +279,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             iconQuick.setVisibility(item.todo.quick ? View.VISIBLE : View.GONE);
             iconWeekend.setVisibility(item.todo.weekend ? View.VISIBLE : View.GONE);
             iconWeekday.setVisibility(item.todo.weekday ? View.VISIBLE : View.GONE);
+            iconTimesensitive.setVisibility(item.todo.timesensitive ? View.VISIBLE : View.GONE);
 
             boolean reorderable = item.type == DisplayItem.TYPE_TODO_ROW;
             dragHandle.setVisibility(reorderable ? View.VISIBLE : View.GONE);

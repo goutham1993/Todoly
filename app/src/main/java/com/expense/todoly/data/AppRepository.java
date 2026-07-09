@@ -63,7 +63,8 @@ public class AppRepository {
 
     public void addTodo(final long categoryId, final String title, final String notes,
                         final boolean important, final boolean quick,
-                        final boolean weekend, final boolean weekday) {
+                        final boolean weekend, final boolean weekday,
+                        final boolean timesensitive) {
         AppDatabase.IO_EXECUTOR.execute(() -> {
             int order = todoDao.maxSortOrder(categoryId) + 1;
             Todo todo = new Todo(categoryId, title, notes, System.currentTimeMillis(), order);
@@ -71,6 +72,7 @@ public class AppRepository {
             todo.quick = quick;
             todo.weekend = weekend;
             todo.weekday = weekday;
+            todo.timesensitive = timesensitive;
             todoDao.insert(todo);
         });
     }

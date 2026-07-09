@@ -40,6 +40,7 @@ public class TodoViewModel extends AndroidViewModel {
     private final MutableLiveData<Boolean> filterQuick = new MutableLiveData<>(false);
     private final MutableLiveData<Boolean> filterWeekend = new MutableLiveData<>(false);
     private final MutableLiveData<Boolean> filterWeekday = new MutableLiveData<>(false);
+    private final MutableLiveData<Boolean> filterTimesensitive = new MutableLiveData<>(false);
 
     private final MediatorLiveData<List<DisplayItem>> displayItems = new MediatorLiveData<>();
 
@@ -71,6 +72,7 @@ public class TodoViewModel extends AndroidViewModel {
         displayItems.addSource(filterQuick, v -> rebuild());
         displayItems.addSource(filterWeekend, v -> rebuild());
         displayItems.addSource(filterWeekday, v -> rebuild());
+        displayItems.addSource(filterTimesensitive, v -> rebuild());
     }
 
     public LiveData<List<DisplayItem>> getDisplayItems() {
@@ -113,6 +115,10 @@ public class TodoViewModel extends AndroidViewModel {
         return filterWeekday;
     }
 
+    public LiveData<Boolean> getFilterTimesensitive() {
+        return filterTimesensitive;
+    }
+
     private void applyInitialCollapse(List<CategoryWithCount> cats) {
         if (initialCollapseApplied || cats == null || cats.isEmpty()) return;
         initialCollapseApplied = true;
@@ -143,10 +149,11 @@ public class TodoViewModel extends AndroidViewModel {
         boolean fQuick = Boolean.TRUE.equals(filterQuick.getValue());
         boolean fWeekend = Boolean.TRUE.equals(filterWeekend.getValue());
         boolean fWeekday = Boolean.TRUE.equals(filterWeekday.getValue());
+        boolean fTimesensitive = Boolean.TRUE.equals(filterTimesensitive.getValue());
 
-        if (!query.isEmpty() || fImportant || fQuick || fWeekend || fWeekday) {
+        if (!query.isEmpty() || fImportant || fQuick || fWeekend || fWeekday || fTimesensitive) {
             displayItems.setValue(buildFilteredResults(cats, active, completed, query,
-                    fImportant, fQuick, fWeekend, fWeekday));
+                    fImportant, fQuick, fWeekend, fWeekday, fTimesensitive));
             return;
         }
 
@@ -192,10 +199,11 @@ public class TodoViewModel extends AndroidViewModel {
     private List<DisplayItem> buildFilteredResults(List<CategoryWithCount> cats, List<Todo> active,
                                                    List<Todo> completed, String query,
                                                    boolean fImportant, boolean fQuick,
-                                                   boolean fWeekend, boolean fWeekday) {
+                                                   boolean fWeekend, boolean fWeekday,
+                                                   boolean fTimesensitive) {
         List<DisplayItem> items = new ArrayList<>();
         for (Todo t : active) {
-            if (matches(t, query) && matchesAttributes(t, fImportant, fQuick, fWeekend, fWeekday)) {
+            if (matches(t, query) && matchesAttributes(t, fImportant, fQuick, fWeekend, fWeekday, fTimesensitive)) {
                 CategoryWithCount cat = findCategory(cats, t.categoryId);
                 String color = cat != null ? cat.colorHex : "#9E9E9E";
                 String name = cat != null ? cat.name : "";
@@ -205,7 +213,7 @@ public class TodoViewModel extends AndroidViewModel {
         // Completed todos only appear for text search, not for attribute-only filtering.
         if (!query.isEmpty()) {
             for (Todo t : completed) {
-                if (matches(t, query) && matchesAttributes(t, fImportant, fQuick, fWeekend, fWeekday)) {
+                if (matches(t, query) && matchesAttributes(t, fImportant, fQuick, fWeekend, fWeekday, fTimesensitive)) {
                     CategoryWithCount cat = findCategory(cats, t.categoryId);
                     String color = cat != null ? cat.colorHex : "#9E9E9E";
                     String name = cat != null ? cat.name : "";
@@ -223,11 +231,13 @@ public class TodoViewModel extends AndroidViewModel {
     }
 
     private boolean matchesAttributes(Todo todo, boolean fImportant, boolean fQuick,
-                                      boolean fWeekend, boolean fWeekday) {
+                                      boolean fWeekend, boolean fWeekday,
+                                      boolean fTimesensitive) {
         if (fImportant && !todo.important) return false;
         if (fQuick && !todo.quick) return false;
         if (fWeekend && !todo.weekend) return false;
-        return !fWeekday || todo.weekday;
+        if (fWeekday && !todo.weekday) return false;
+        return !fTimesensitive || todo.timesensitive;
     }
 
     private CategoryWithCount findCategory(List<CategoryWithCount> cats, long id) {
@@ -242,8 +252,8 @@ public class TodoViewModel extends AndroidViewModel {
     }
 
     public void addTodo(long categoryId, String title, String notes, boolean important, boolean quick,
-                        boolean weekend, boolean weekday) {
-        repository.addTodo(categoryId, title, notes, important, quick, weekend, weekday);
+                        boolean weekend, boolean weekday, boolean timesensitive) {
+        repository.addTodo(categoryId, title, notes, important, quick, weekend, weekday, timesensitive);
     }
 
     public void updateTodo(Todo todo) {
@@ -336,6 +346,12 @@ public class TodoViewModel extends AndroidViewModel {
     public void setFilterWeekday(boolean enabled) {
         if (!Boolean.valueOf(enabled).equals(filterWeekday.getValue())) {
             filterWeekday.setValue(enabled);
+        }
+    }
+
+    public void setFilterTimesensitive(boolean enabled) {
+        if (!Boolean.valueOf(enabled).equals(filterTimesensitive.getValue())) {
+            filterTimesensitive.setValue(enabled);
         }
     }
 }

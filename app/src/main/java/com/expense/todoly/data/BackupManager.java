@@ -33,7 +33,7 @@ public final class BackupManager {
 
     private static final String CATEGORY_HEADER = "id,name,colorHex,sortOrder,createdAt";
     private static final String TODO_HEADER =
-            "id,categoryId,title,notes,isCompleted,important,quick,weekend,weekday,createdAt,completedAt,sortOrder";
+            "id,categoryId,title,notes,isCompleted,important,quick,weekend,weekday,timesensitive,createdAt,completedAt,sortOrder";
 
     private BackupManager() {
     }
@@ -79,6 +79,7 @@ public final class BackupManager {
             o.put("quick", t.quick);
             o.put("weekend", t.weekend);
             o.put("weekday", t.weekday);
+            o.put("timesensitive", t.timesensitive);
             o.put("createdAt", t.createdAt);
             o.put("completedAt", t.completedAt);
             o.put("sortOrder", t.sortOrder);
@@ -127,6 +128,7 @@ public final class BackupManager {
                 t.quick = o.optBoolean("quick", false);
                 t.weekend = o.optBoolean("weekend", false);
                 t.weekday = o.optBoolean("weekday", false);
+                t.timesensitive = o.optBoolean("timesensitive", false);
                 t.completedAt = o.optLong("completedAt", 0L);
                 todos.add(t);
             }
@@ -195,6 +197,7 @@ public final class BackupManager {
                     .append(t.quick ? 1 : 0).append(',')
                     .append(t.weekend ? 1 : 0).append(',')
                     .append(t.weekday ? 1 : 0).append(',')
+                    .append(t.timesensitive ? 1 : 0).append(',')
                     .append(t.createdAt).append(',')
                     .append(t.completedAt).append(',')
                     .append(t.sortOrder).append('\n');
@@ -227,20 +230,27 @@ public final class BackupManager {
         for (int i = 1; i < rows.size(); i++) {
             List<String> f = rows.get(i);
             if (f.size() < 12) continue;
+            // Backups from before the timesensitive column have 12 fields; newer ones have 13
+            // with timesensitive inserted at index 9, shifting the trailing columns by one.
+            boolean hasTimesensitive = f.size() >= 13;
+            int createdIdx = hasTimesensitive ? 10 : 9;
+            int completedIdx = hasTimesensitive ? 11 : 10;
+            int sortIdx = hasTimesensitive ? 12 : 11;
             String notes = f.get(3).isEmpty() ? null : f.get(3);
             Todo t = new Todo(
                     parseLong(f.get(1), 0L),
                     f.get(2),
                     notes,
-                    parseLong(f.get(9), System.currentTimeMillis()),
-                    parseInt(f.get(11), i));
+                    parseLong(f.get(createdIdx), System.currentTimeMillis()),
+                    parseInt(f.get(sortIdx), i));
             t.id = parseLong(f.get(0), 0L);
             t.isCompleted = "1".equals(f.get(4));
             t.important = "1".equals(f.get(5));
             t.quick = "1".equals(f.get(6));
             t.weekend = "1".equals(f.get(7));
             t.weekday = "1".equals(f.get(8));
-            t.completedAt = parseLong(f.get(10), 0L);
+            t.timesensitive = hasTimesensitive && "1".equals(f.get(9));
+            t.completedAt = parseLong(f.get(completedIdx), 0L);
             result.add(t);
         }
         return result;

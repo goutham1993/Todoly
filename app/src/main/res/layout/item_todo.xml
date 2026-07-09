@@ -117,6 +117,17 @@
             tools:visibility="visible" />
 
         <ImageView
+            android:id="@+id/iconTimesensitive"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginStart="6dp"
+            android:contentDescription="@string/attr_timesensitive"
+            android:src="@drawable/ic_clock"
+            app:tint="@color/timesensitive"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <ImageView
             android:id="@+id/dragHandle"
             android:layout_width="28dp"
             android:layout_height="40dp"

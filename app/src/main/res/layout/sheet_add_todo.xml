@@ -100,6 +100,16 @@
             app:chipIcon="@drawable/ic_bolt"
             app:chipIconTint="@color/quick"
             app:chipIconVisible="true" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipTimesensitive"
+            style="@style/Widget.Material3.Chip.Filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/attr_timesensitive"
+            app:chipIcon="@drawable/ic_clock"
+            app:chipIconTint="@color/timesensitive"
+            app:chipIconVisible="true" />
     </com.google.android.material.chip.ChipGroup>
 
     <TextView

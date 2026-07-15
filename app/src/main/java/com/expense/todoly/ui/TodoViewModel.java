@@ -272,6 +272,10 @@ public class TodoViewModel extends AndroidViewModel {
         repository.addCategory(name, colorHex);
     }
 
+    public void updateCategory(long id, String name, String colorHex) {
+        repository.updateCategory(id, name, colorHex);
+    }
+
     public void addTodo(long categoryId, String title, String notes, boolean important, boolean quick,
                         boolean weekend, boolean weekday, boolean timesensitive,
                         boolean today, boolean tomorrow) {
@@ -315,6 +319,13 @@ public class TodoViewModel extends AndroidViewModel {
             collapsed.add(categoryId);
         }
         collapsedCategoryIds.setValue(collapsed);
+    }
+
+    public void ensureCategoryExpanded(long categoryId) {
+        Set<Long> collapsed = new HashSet<>(collapsedCategoryIds.getValue());
+        if (collapsed.remove(categoryId)) {
+            collapsedCategoryIds.setValue(collapsed);
+        }
     }
 
     public void toggleCompletedExpanded() {

@@ -49,9 +49,21 @@
             style="@style/Widget.Todoly.CountBadge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="6dp"
+            android:layout_marginEnd="4dp"
             android:text="3"
             tools:ignore="HardcodedText" />
+
+        <ImageView
+            android:id="@+id/addTaskButton"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginEnd="2dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/add_todo"
+            android:padding="7dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_add"
+            tools:ignore="ContentDescription" />
 
         <ImageView
             android:id="@+id/chevron"

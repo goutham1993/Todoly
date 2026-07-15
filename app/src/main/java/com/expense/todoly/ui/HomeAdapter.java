@@ -192,6 +192,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         final View colorDot;
         final TextView name;
         final TextView badge;
+        final ImageView addTaskButton;
         final ImageView chevron;
 
         CategoryHeaderVH(@NonNull View itemView) {
@@ -199,12 +200,15 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             colorDot = itemView.findViewById(R.id.colorDot);
             name = itemView.findViewById(R.id.categoryName);
             badge = itemView.findViewById(R.id.countBadge);
+            addTaskButton = itemView.findViewById(R.id.addTaskButton);
             chevron = itemView.findViewById(R.id.chevron);
         }
 
         void bind(DisplayItem item) {
             name.setText(item.category.name);
-            colorDot.setBackgroundTintList(ColorStateList.valueOf(parseColor(item.category.colorHex)));
+            int categoryColor = parseColor(item.category.colorHex);
+            colorDot.setBackgroundTintList(ColorStateList.valueOf(categoryColor));
+            addTaskButton.setImageTintList(ColorStateList.valueOf(categoryColor));
             badge.setText(item.category.activeCount + "/" + item.category.totalCount);
             chevron.setRotation(item.expanded ? 0f : -90f);
             itemView.setOnClickListener(v -> listener.onCategoryHeaderClick(item.category.id));
@@ -212,6 +216,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 listener.onCategoryLongClick(item.category);
                 return true;
             });
+            addTaskButton.setOnClickListener(v -> listener.onAddTaskClick(item.category.id));
         }
     }
 

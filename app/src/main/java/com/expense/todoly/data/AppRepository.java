@@ -78,6 +78,20 @@ public class AppRepository {
         });
     }
 
+    public void updateCategory(final long id, final String name, final String colorHex) {
+        AppDatabase.IO_EXECUTOR.execute(() -> {
+            List<Category> all = categoryDao.getAllSync();
+            for (Category c : all) {
+                if (c.id == id) {
+                    c.name = name;
+                    c.colorHex = colorHex;
+                    categoryDao.update(c);
+                    break;
+                }
+            }
+        });
+    }
+
     public void addTodo(final long categoryId, final String title, final String notes,
                         final boolean important, final boolean quick,
                         final boolean weekend, final boolean weekday,

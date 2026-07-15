@@ -94,7 +94,7 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void onCategoryLongClick(com.expense.todoly.data.model.CategoryWithCount category) {
-                confirmDeleteCategory(category);
+                showCategoryActions(category);
             }
 
             @Override
@@ -115,6 +115,7 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void onAddTaskClick(long categoryId) {
+                viewModel.ensureCategoryExpanded(categoryId);
                 AddTodoBottomSheet.show(requireContext(), viewModel,
                         new ArrayList<>(categories), categoryId);
             }
@@ -401,6 +402,23 @@ public class HomeFragment extends Fragment {
                                             todo.important, todo.quick, todo.weekend, todo.weekday,
                                             todo.timesensitive, todo.today, todo.tomorrow))
                             .show();
+                })
+                .show();
+    }
+
+    private void showCategoryActions(com.expense.todoly.data.model.CategoryWithCount category) {
+        new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+                .setTitle(category.name)
+                .setItems(new CharSequence[]{
+                        getString(R.string.edit_category),
+                        getString(R.string.delete)
+                }, (dialog, which) -> {
+                    if (which == 0) {
+                        com.expense.todoly.ui.dialog.AddCategoryDialog.showEdit(
+                                requireContext(), viewModel, category);
+                    } else {
+                        confirmDeleteCategory(category);
+                    }
                 })
                 .show();
     }

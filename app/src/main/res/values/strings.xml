@@ -39,7 +39,9 @@
 
     <string name="expand_all">Expand all</string>
     <string name="collapse_all">Collapse all</string>
-    <string name="toggle_view">Toggle view</string>
+    <string name="menu_view">View</string>
+    <string name="view_list">List view</string>
+    <string name="view_category">Category view</string>
     <string name="search">Search</string>
     <string name="search_hint">Search tasks</string>
 

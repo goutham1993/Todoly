@@ -14,10 +14,9 @@
         android:title="@string/collapse_all"
         app:showAsAction="ifRoom" />
     <item
-        android:id="@+id/action_toggle_view"
-        android:icon="@drawable/ic_view_list"
-        android:title="@string/toggle_view"
-        app:showAsAction="ifRoom" />
+        android:id="@+id/action_view"
+        android:title="@string/menu_view"
+        app:showAsAction="never" />
     <item
         android:id="@+id/action_settings"
         android:icon="@drawable/ic_settings"

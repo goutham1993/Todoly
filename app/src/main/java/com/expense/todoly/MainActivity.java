@@ -6,6 +6,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -28,7 +29,6 @@ public class MainActivity extends AppCompatActivity {
     private final List<Category> categories = new ArrayList<>();
 
     private MenuItem expandItem;
-    private MenuItem viewItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
             if (list != null) categories.addAll(list);
         });
 
-        viewModel.getViewMode().observe(this, mode -> updateViewIcon(mode));
+        viewModel.getViewMode().observe(this, this::updateExpandVisibility);
 
         binding.fab.setOnClickListener(v -> toggleFab());
         binding.scrim.setOnClickListener(v -> closeFab());
@@ -111,10 +111,9 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         expandItem = menu.findItem(R.id.action_toggle_expand);
-        viewItem = menu.findItem(R.id.action_toggle_view);
         setupSearch(menu.findItem(R.id.action_search));
         updateExpandIcon();
-        updateViewIcon(viewModel.getViewMode().getValue());
+        updateExpandVisibility(viewModel.getViewMode().getValue());
         return true;
     }
 
@@ -161,8 +160,8 @@ public class MainActivity extends AppCompatActivity {
             }
             updateExpandIcon();
             return true;
-        } else if (id == R.id.action_toggle_view) {
-            viewModel.toggleViewMode();
+        } else if (id == R.id.action_view) {
+            showViewModeDialog();
             return true;
         } else if (id == R.id.action_settings) {
             startActivity(new Intent(this, SettingsActivity.class));
@@ -171,18 +170,35 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    private void showViewModeDialog() {
+        String[] options = new String[]{
+                getString(R.string.view_list),
+                getString(R.string.view_category)
+        };
+        TodoViewModel.ViewMode current = viewModel.getViewMode().getValue();
+        int checked = current == TodoViewModel.ViewMode.LIST ? 0 : 1;
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.menu_view)
+                .setSingleChoiceItems(options, checked, (dialog, which) -> {
+                    viewModel.setViewMode(which == 0
+                            ? TodoViewModel.ViewMode.LIST
+                            : TodoViewModel.ViewMode.GROUPED);
+                    dialog.dismiss();
+                })
+                .show();
+    }
+
     private void updateExpandIcon() {
         if (expandItem == null) return;
         expandItem.setIcon(allExpanded ? R.drawable.ic_collapse_all : R.drawable.ic_expand_all);
         expandItem.setTitle(allExpanded ? R.string.collapse_all : R.string.expand_all);
     }
 
-    private void updateViewIcon(TodoViewModel.ViewMode mode) {
-        if (viewItem == null || mode == null) return;
-        boolean list = mode == TodoViewModel.ViewMode.LIST;
-        viewItem.setIcon(list ? R.drawable.ic_view_grouped : R.drawable.ic_view_list);
-        boolean expandVisible = mode == TodoViewModel.ViewMode.GROUPED;
-        if (expandItem != null) expandItem.setVisible(expandVisible);
+    private void updateExpandVisibility(TodoViewModel.ViewMode mode) {
+        if (expandItem == null) return;
+        boolean grouped = mode == null || mode == TodoViewModel.ViewMode.GROUPED;
+        expandItem.setVisible(grouped);
     }
 
     private float dp(int value) {

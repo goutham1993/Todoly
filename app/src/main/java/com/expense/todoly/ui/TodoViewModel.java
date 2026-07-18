@@ -10,6 +10,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 
 import com.expense.todoly.data.AppRepository;
+import com.expense.todoly.data.Prefs;
 import com.expense.todoly.data.entity.Category;
 import com.expense.todoly.data.entity.Todo;
 import com.expense.todoly.data.model.CategoryWithCount;
@@ -32,7 +33,7 @@ public class TodoViewModel extends AndroidViewModel {
     private final LiveData<Integer> pendingCount;
     private final LiveData<Integer> completedCount;
 
-    private final MutableLiveData<ViewMode> viewMode = new MutableLiveData<>(ViewMode.GROUPED);
+    private final MutableLiveData<ViewMode> viewMode;
     private final MutableLiveData<Set<Long>> collapsedCategoryIds = new MutableLiveData<>(new HashSet<>());
     private final MutableLiveData<Boolean> completedExpanded = new MutableLiveData<>(false);
     private final MutableLiveData<String> searchQuery = new MutableLiveData<>("");
@@ -53,6 +54,7 @@ public class TodoViewModel extends AndroidViewModel {
     public TodoViewModel(@NonNull Application application) {
         super(application);
         repository = new AppRepository(application);
+        viewMode = new MutableLiveData<>(loadSavedViewMode(application));
         categoriesWithCounts = repository.getCategoriesWithCounts();
         categories = repository.getCategories();
         activeTodos = repository.getActiveTodos();
@@ -347,8 +349,17 @@ public class TodoViewModel extends AndroidViewModel {
         collapsedCategoryIds.setValue(collapsed);
     }
 
-    public void toggleViewMode() {
-        viewMode.setValue(viewMode.getValue() == ViewMode.LIST ? ViewMode.GROUPED : ViewMode.LIST);
+    public void setViewMode(ViewMode mode) {
+        if (mode == null || mode == viewMode.getValue()) return;
+        viewMode.setValue(mode);
+        Prefs.setViewMode(getApplication(),
+                mode == ViewMode.LIST ? Prefs.VIEW_MODE_LIST : Prefs.VIEW_MODE_GROUPED);
+    }
+
+    private static ViewMode loadSavedViewMode(Application application) {
+        return Prefs.VIEW_MODE_LIST.equals(Prefs.getViewMode(application))
+                ? ViewMode.LIST
+                : ViewMode.GROUPED;
     }
 
     public void setSearchQuery(String query) {

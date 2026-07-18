@@ -11,9 +11,13 @@ public final class Prefs {
     public static final int THEME_LIGHT = 1;
     public static final int THEME_DARK = 2;
 
+    public static final String VIEW_MODE_GROUPED = "grouped";
+    public static final String VIEW_MODE_LIST = "list";
+
     private static final String PREFS_NAME = "todoly_prefs";
     private static final String KEY_THEME_MODE = "theme_mode";
     private static final String KEY_LAST_ROLLOVER_DAY = "last_rollover_day";
+    private static final String KEY_VIEW_MODE = "view_mode";
 
     private Prefs() {
     }
@@ -53,5 +57,13 @@ public final class Prefs {
 
     public static void setLastRolloverDay(Context context, int dayEpoch) {
         prefs(context).edit().putInt(KEY_LAST_ROLLOVER_DAY, dayEpoch).apply();
+    }
+
+    public static String getViewMode(Context context) {
+        return prefs(context).getString(KEY_VIEW_MODE, VIEW_MODE_GROUPED);
+    }
+
+    public static void setViewMode(Context context, String viewMode) {
+        prefs(context).edit().putString(KEY_VIEW_MODE, viewMode).apply();
     }
 }

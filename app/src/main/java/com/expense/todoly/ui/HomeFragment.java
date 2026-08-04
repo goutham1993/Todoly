@@ -44,6 +44,7 @@ public class HomeFragment extends Fragment {
     private HomeAdapter adapter;
     private RecyclerView recycler;
     private View emptyState;
+    private View reorderBar;
     private TextView pendingCount;
     private TextView completedCount;
     private Chip chipFilterImportant;
@@ -71,6 +72,9 @@ public class HomeFragment extends Fragment {
 
         recycler = view.findViewById(R.id.recycler);
         emptyState = view.findViewById(R.id.emptyState);
+        reorderBar = view.findViewById(R.id.reorderBar);
+        view.findViewById(R.id.reorderDoneButton).setOnClickListener(v ->
+                viewModel.setReorderCategoriesMode(false));
         pendingCount = view.findViewById(R.id.pendingCount);
         completedCount = view.findViewById(R.id.completedCount);
         chipFilterImportant = view.findViewById(R.id.chipFilterImportant);
@@ -141,6 +145,12 @@ public class HomeFragment extends Fragment {
         viewModel.getCategories().observe(getViewLifecycleOwner(), list -> {
             categories.clear();
             if (list != null) categories.addAll(list);
+        });
+
+        viewModel.getReorderCategoriesMode().observe(getViewLifecycleOwner(), enabled -> {
+            boolean on = Boolean.TRUE.equals(enabled);
+            adapter.setReorderCategoriesMode(on);
+            reorderBar.setVisibility(on ? View.VISIBLE : View.GONE);
         });
 
         viewModel.getDisplayItems().observe(getViewLifecycleOwner(), items -> {
@@ -279,6 +289,7 @@ public class HomeFragment extends Fragment {
 
             private boolean reordered = false;
             private long dragCategoryId = -1L;
+            private boolean reorderedCategories = false;
 
             @Override
             public boolean isLongPressDragEnabled() {
@@ -288,14 +299,25 @@ public class HomeFragment extends Fragment {
             @Override
             public boolean onMove(@NonNull RecyclerView rv, @NonNull RecyclerView.ViewHolder vh,
                                   @NonNull RecyclerView.ViewHolder target) {
-                DisplayItem from = adapter.itemAt(vh.getBindingAdapterPosition());
-                DisplayItem to = adapter.itemAt(target.getBindingAdapterPosition());
-                if (from == null || to == null || from.todo == null || to.todo == null) return false;
+                int fromPos = vh.getBindingAdapterPosition();
+                int toPos = target.getBindingAdapterPosition();
+                DisplayItem from = adapter.itemAt(fromPos);
+                DisplayItem to = adapter.itemAt(toPos);
+                if (from == null || to == null) return false;
+
+                if (from.type == DisplayItem.TYPE_CATEGORY_HEADER) {
+                    if (to.type != DisplayItem.TYPE_CATEGORY_HEADER) return false;
+                    adapter.moveCategoryBlock(fromPos, toPos);
+                    reorderedCategories = true;
+                    return true;
+                }
+
+                if (from.todo == null || to.todo == null) return false;
                 if (from.type != DisplayItem.TYPE_TODO_ROW || to.type != DisplayItem.TYPE_TODO_ROW) {
                     return false;
                 }
                 if (from.todo.categoryId != to.todo.categoryId) return false;
-                adapter.moveItem(vh.getBindingAdapterPosition(), target.getBindingAdapterPosition());
+                adapter.moveItem(fromPos, toPos);
                 reordered = true;
                 dragCategoryId = from.todo.categoryId;
                 return true;
@@ -306,7 +328,11 @@ public class HomeFragment extends Fragment {
                                        @NonNull RecyclerView.ViewHolder target) {
                 DisplayItem from = adapter.itemAt(current.getBindingAdapterPosition());
                 DisplayItem to = adapter.itemAt(target.getBindingAdapterPosition());
-                return from != null && to != null && from.todo != null && to.todo != null
+                if (from == null || to == null) return false;
+                if (from.type == DisplayItem.TYPE_CATEGORY_HEADER) {
+                    return to.type == DisplayItem.TYPE_CATEGORY_HEADER;
+                }
+                return from.todo != null && to.todo != null
                         && to.type == DisplayItem.TYPE_TODO_ROW
                         && from.todo.categoryId == to.todo.categoryId;
             }
@@ -314,16 +340,22 @@ public class HomeFragment extends Fragment {
             @Override
             public void clearView(@NonNull RecyclerView rv, @NonNull RecyclerView.ViewHolder vh) {
                 super.clearView(rv, vh);
-                if (reordered && dragCategoryId != -1L) {
+                if (reorderedCategories) {
+                    viewModel.reorderCategories(adapter.orderedCategoryIds());
+                } else if (reordered && dragCategoryId != -1L) {
                     viewModel.reorderTodos(adapter.orderedTodoIdsForCategory(dragCategoryId));
                 }
                 reordered = false;
                 dragCategoryId = -1L;
+                reorderedCategories = false;
             }
 
             @Override
             public int getMovementFlags(@NonNull RecyclerView rv, @NonNull RecyclerView.ViewHolder vh) {
                 int type = vh.getItemViewType();
+                if (type == DisplayItem.TYPE_CATEGORY_HEADER) {
+                    return makeMovementFlags(ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0);
+                }
                 if (type == DisplayItem.TYPE_TODO_ROW) {
                     return makeMovementFlags(ItemTouchHelper.UP | ItemTouchHelper.DOWN,
                             ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);

@@ -30,6 +30,9 @@ public interface CategoryDao {
     @Query("DELETE FROM categories WHERE id = :id")
     void deleteById(long id);
 
+    @Query("UPDATE categories SET sortOrder = :sortOrder WHERE id = :id")
+    void updateSortOrder(long id, int sortOrder);
+
     @Query("DELETE FROM categories")
     void deleteAll();
 

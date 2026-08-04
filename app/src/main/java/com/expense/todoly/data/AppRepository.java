@@ -120,6 +120,14 @@ public class AppRepository {
         });
     }
 
+    public void reorderCategories(final List<Long> orderedIds) {
+        AppDatabase.IO_EXECUTOR.execute(() -> {
+            for (int i = 0; i < orderedIds.size(); i++) {
+                categoryDao.updateSortOrder(orderedIds.get(i), i);
+            }
+        });
+    }
+
     public void setCompleted(final long todoId, final boolean completed) {
         AppDatabase.IO_EXECUTOR.execute(() -> {
             todoDao.setCompleted(todoId, completed, completed ? System.currentTimeMillis() : 0L);

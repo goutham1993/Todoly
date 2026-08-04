@@ -40,6 +40,10 @@
     <string name="expand_all">Expand all</string>
     <string name="collapse_all">Collapse all</string>
     <string name="menu_view">View</string>
+    <string name="reorder_categories">Reorder categories</string>
+    <string name="done_reordering">Done reordering</string>
+    <string name="reorder_hint">Drag the cards to reorder</string>
+    <string name="done">Done</string>
     <string name="view_list">List view</string>
     <string name="view_category">Category view</string>
     <string name="search">Search</string>

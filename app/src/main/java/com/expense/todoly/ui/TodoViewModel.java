@@ -34,6 +34,7 @@ public class TodoViewModel extends AndroidViewModel {
     private final LiveData<Integer> completedCount;
 
     private final MutableLiveData<ViewMode> viewMode;
+    private final MutableLiveData<Boolean> reorderCategoriesMode = new MutableLiveData<>(false);
     private final MutableLiveData<Set<Long>> collapsedCategoryIds = new MutableLiveData<>(new HashSet<>());
     private final MutableLiveData<Boolean> completedExpanded = new MutableLiveData<>(false);
     private final MutableLiveData<String> searchQuery = new MutableLiveData<>("");
@@ -103,6 +104,20 @@ public class TodoViewModel extends AndroidViewModel {
 
     public LiveData<ViewMode> getViewMode() {
         return viewMode;
+    }
+
+    public LiveData<Boolean> getReorderCategoriesMode() {
+        return reorderCategoriesMode;
+    }
+
+    public void toggleReorderCategoriesMode() {
+        reorderCategoriesMode.setValue(!Boolean.TRUE.equals(reorderCategoriesMode.getValue()));
+    }
+
+    public void setReorderCategoriesMode(boolean enabled) {
+        if (!Boolean.valueOf(enabled).equals(reorderCategoriesMode.getValue())) {
+            reorderCategoriesMode.setValue(enabled);
+        }
     }
 
     public LiveData<Boolean> getFilterImportant() {
@@ -293,6 +308,10 @@ public class TodoViewModel extends AndroidViewModel {
         repository.reorderTodos(orderedIds);
     }
 
+    public void reorderCategories(List<Long> orderedIds) {
+        repository.reorderCategories(orderedIds);
+    }
+
     public void toggleComplete(Todo todo, boolean completed) {
         repository.setCompleted(todo.id, completed);
         if (completed) {
@@ -352,6 +371,9 @@ public class TodoViewModel extends AndroidViewModel {
     public void setViewMode(ViewMode mode) {
         if (mode == null || mode == viewMode.getValue()) return;
         viewMode.setValue(mode);
+        if (mode == ViewMode.LIST) {
+            setReorderCategoriesMode(false);
+        }
         Prefs.setViewMode(getApplication(),
                 mode == ViewMode.LIST ? Prefs.VIEW_MODE_LIST : Prefs.VIEW_MODE_GROUPED);
     }

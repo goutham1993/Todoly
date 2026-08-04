@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private final List<Category> categories = new ArrayList<>();
 
     private MenuItem expandItem;
+    private MenuItem reorderItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +50,8 @@ public class MainActivity extends AppCompatActivity {
             if (list != null) categories.addAll(list);
         });
 
-        viewModel.getViewMode().observe(this, this::updateExpandVisibility);
+        viewModel.getViewMode().observe(this, this::updateMenuVisibility);
+        viewModel.getReorderCategoriesMode().observe(this, enabled -> updateReorderTitle());
 
         binding.fab.setOnClickListener(v -> toggleFab());
         binding.scrim.setOnClickListener(v -> closeFab());
@@ -111,9 +113,11 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         expandItem = menu.findItem(R.id.action_toggle_expand);
+        reorderItem = menu.findItem(R.id.action_reorder_categories);
         setupSearch(menu.findItem(R.id.action_search));
         updateExpandIcon();
-        updateExpandVisibility(viewModel.getViewMode().getValue());
+        updateReorderTitle();
+        updateMenuVisibility(viewModel.getViewMode().getValue());
         return true;
     }
 
@@ -163,6 +167,9 @@ public class MainActivity extends AppCompatActivity {
         } else if (id == R.id.action_view) {
             showViewModeDialog();
             return true;
+        } else if (id == R.id.action_reorder_categories) {
+            viewModel.toggleReorderCategoriesMode();
+            return true;
         } else if (id == R.id.action_settings) {
             startActivity(new Intent(this, SettingsActivity.class));
             return true;
@@ -195,10 +202,16 @@ public class MainActivity extends AppCompatActivity {
         expandItem.setTitle(allExpanded ? R.string.collapse_all : R.string.expand_all);
     }
 
-    private void updateExpandVisibility(TodoViewModel.ViewMode mode) {
-        if (expandItem == null) return;
+    private void updateMenuVisibility(TodoViewModel.ViewMode mode) {
         boolean grouped = mode == null || mode == TodoViewModel.ViewMode.GROUPED;
-        expandItem.setVisible(grouped);
+        if (expandItem != null) expandItem.setVisible(grouped);
+        if (reorderItem != null) reorderItem.setVisible(grouped);
+    }
+
+    private void updateReorderTitle() {
+        if (reorderItem == null) return;
+        boolean on = Boolean.TRUE.equals(viewModel.getReorderCategoriesMode().getValue());
+        reorderItem.setTitle(on ? R.string.done_reordering : R.string.reorder_categories);
     }
 
     private float dp(int value) {

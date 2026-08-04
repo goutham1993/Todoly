@@ -18,6 +18,10 @@
         android:title="@string/menu_view"
         app:showAsAction="never" />
     <item
+        android:id="@+id/action_reorder_categories"
+        android:title="@string/reorder_categories"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_settings"
         android:icon="@drawable/ic_settings"
         android:title="@string/settings"

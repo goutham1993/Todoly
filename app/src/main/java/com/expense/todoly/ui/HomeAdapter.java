@@ -43,10 +43,25 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final List<DisplayItem> items = new ArrayList<>();
     private final Listener listener;
+    private boolean reorderCategoriesMode = false;
 
     public HomeAdapter(Listener listener) {
         this.listener = listener;
         setHasStableIds(true);
+    }
+
+    public void setReorderCategoriesMode(boolean enabled) {
+        if (reorderCategoriesMode == enabled) return;
+        reorderCategoriesMode = enabled;
+        for (int i = 0; i < items.size(); i++) {
+            if (items.get(i).type == DisplayItem.TYPE_CATEGORY_HEADER) {
+                notifyItemChanged(i);
+            }
+        }
+    }
+
+    public boolean isReorderCategoriesMode() {
+        return reorderCategoriesMode;
     }
 
     public void submit(List<DisplayItem> newItems) {
@@ -135,6 +150,58 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         return ids;
     }
 
+    public List<Long> orderedCategoryIds() {
+        List<Long> ids = new ArrayList<>();
+        for (DisplayItem item : items) {
+            if (item.type == DisplayItem.TYPE_CATEGORY_HEADER && item.category != null) {
+                ids.add(item.category.id);
+            }
+        }
+        return ids;
+    }
+
+    public boolean isCategoryHeader(int position) {
+        DisplayItem item = itemAt(position);
+        return item != null && item.type == DisplayItem.TYPE_CATEGORY_HEADER;
+    }
+
+    private int categoryBlockEnd(int headerPos) {
+        int end = headerPos + 1;
+        while (end < items.size()
+                && items.get(end).type != DisplayItem.TYPE_CATEGORY_HEADER
+                && items.get(end).type != DisplayItem.TYPE_COMPLETED_HEADER) {
+            end++;
+        }
+        return end;
+    }
+
+    public void moveCategoryBlock(int fromHeaderPos, int toHeaderPos) {
+        if (!isCategoryHeader(fromHeaderPos) || !isCategoryHeader(toHeaderPos)) return;
+        if (fromHeaderPos == toHeaderPos) return;
+
+        int fromEnd = categoryBlockEnd(fromHeaderPos);
+        int blockSize = fromEnd - fromHeaderPos;
+
+        List<DisplayItem> block = new ArrayList<>(items.subList(fromHeaderPos, fromEnd));
+
+        int insertPos;
+        if (toHeaderPos < fromHeaderPos) {
+            insertPos = toHeaderPos;
+        } else {
+            insertPos = categoryBlockEnd(toHeaderPos) - blockSize;
+        }
+
+        items.subList(fromHeaderPos, fromEnd).clear();
+        items.addAll(insertPos, block);
+
+        notifyItemMoved(fromHeaderPos, insertPos);
+        if (blockSize > 1) {
+            int start = Math.min(fromHeaderPos, insertPos);
+            int span = Math.abs(insertPos - fromHeaderPos) + blockSize;
+            notifyItemRangeChanged(start, Math.min(span, items.size() - start));
+        }
+    }
+
     @Override
     public long getItemId(int position) {
         return items.get(position).stableId();
@@ -194,6 +261,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         final TextView badge;
         final ImageView addTaskButton;
         final ImageView chevron;
+        final ImageView dragHandle;
 
         CategoryHeaderVH(@NonNull View itemView) {
             super(itemView);
@@ -202,8 +270,10 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             badge = itemView.findViewById(R.id.countBadge);
             addTaskButton = itemView.findViewById(R.id.addTaskButton);
             chevron = itemView.findViewById(R.id.chevron);
+            dragHandle = itemView.findViewById(R.id.dragHandle);
         }
 
+        @SuppressLint("ClickableViewAccessibility")
         void bind(DisplayItem item) {
             name.setText(item.category.name);
             int categoryColor = parseColor(item.category.colorHex);
@@ -211,12 +281,37 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             addTaskButton.setImageTintList(ColorStateList.valueOf(categoryColor));
             badge.setText(item.category.activeCount + "/" + item.category.totalCount);
             chevron.setRotation(item.expanded ? 0f : -90f);
-            itemView.setOnClickListener(v -> listener.onCategoryHeaderClick(item.category.id));
-            itemView.setOnLongClickListener(v -> {
-                listener.onCategoryLongClick(item.category);
-                return true;
-            });
             addTaskButton.setOnClickListener(v -> listener.onAddTaskClick(item.category.id));
+
+            if (reorderCategoriesMode) {
+                itemView.setOnClickListener(null);
+                itemView.setClickable(false);
+                itemView.setOnLongClickListener(null);
+                itemView.setLongClickable(false);
+            } else {
+                itemView.setOnClickListener(v -> listener.onCategoryHeaderClick(item.category.id));
+                itemView.setOnLongClickListener(v -> {
+                    listener.onCategoryLongClick(item.category);
+                    return true;
+                });
+            }
+
+            if (reorderCategoriesMode) {
+                dragHandle.setVisibility(View.VISIBLE);
+                addTaskButton.setVisibility(View.GONE);
+                chevron.setVisibility(View.GONE);
+                dragHandle.setOnTouchListener((v, event) -> {
+                    if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+                        listener.onStartDrag(this);
+                    }
+                    return false;
+                });
+            } else {
+                dragHandle.setVisibility(View.GONE);
+                addTaskButton.setVisibility(View.VISIBLE);
+                chevron.setVisibility(View.VISIBLE);
+                dragHandle.setOnTouchListener(null);
+            }
         }
     }
 

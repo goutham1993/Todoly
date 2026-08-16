@@ -5,6 +5,10 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -12,6 +16,7 @@ import com.expense.todoly.R;
 import com.expense.todoly.data.entity.Category;
 import com.expense.todoly.data.entity.Todo;
 import com.expense.todoly.ui.TodoViewModel;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.checkbox.MaterialCheckBox;
@@ -126,6 +131,7 @@ public class AddTodoBottomSheet {
 
         final BottomSheetDialog dialog = new BottomSheetDialog(context);
         dialog.setContentView(view);
+        configureSheet(dialog, view);
 
         cancelButton.setOnClickListener(v -> dialog.dismiss());
 
@@ -188,7 +194,42 @@ public class AddTodoBottomSheet {
         });
 
         dialog.show();
-        titleInput.requestFocus();
+        titleInput.post(titleInput::requestFocus);
+    }
+
+    private static void configureSheet(BottomSheetDialog dialog, View content) {
+        Window window = dialog.getWindow();
+        if (window != null) {
+            // The keyboard overlays the sheet instead of resizing it, so the action row keeps
+            // its place at the bottom of the sheet rather than riding above the keyboard.
+            window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING
+                    | WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        }
+
+        // The sheet grows only as tall as its content; the scrolling body absorbs any overflow.
+        ViewGroup.LayoutParams contentParams = content.getLayoutParams();
+        if (contentParams == null) {
+            content.setLayoutParams(new FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT));
+        } else {
+            contentParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            content.setLayoutParams(contentParams);
+        }
+
+        dialog.setOnShowListener(d -> {
+            FrameLayout bottomSheet = dialog.findViewById(
+                    com.google.android.material.R.id.design_bottom_sheet);
+            if (bottomSheet == null) {
+                return;
+            }
+
+            BottomSheetBehavior<FrameLayout> behavior = BottomSheetBehavior.from(bottomSheet);
+            behavior.setFitToContents(true);
+            behavior.setSkipCollapsed(true);
+            behavior.setDraggable(true);
+            behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        });
     }
 
     private static int parseColor(String hex) {

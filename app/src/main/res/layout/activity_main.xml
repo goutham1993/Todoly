@@ -40,7 +40,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_marginEnd="@dimen/fab_margin"
-        android:layout_marginBottom="88dp"
+        android:layout_marginBottom="136dp"
         android:gravity="end"
         android:orientation="vertical"
         android:visibility="gone">
@@ -120,10 +120,21 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_marginEnd="@dimen/fab_margin"
-        android:layout_marginBottom="24dp"
+        android:layout_marginBottom="80dp"
         android:contentDescription="@string/add"
         app:backgroundTint="?attr/colorPrimary"
         app:srcCompat="@drawable/ic_add"
         app:tint="?attr/colorOnPrimary" />
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNav"
+        style="@style/Widget.Todoly.BottomNav"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="?attr/colorSurface"
+        android:paddingTop="2dp"
+        app:labelVisibilityMode="labeled"
+        app:menu="@menu/menu_bottom_nav" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

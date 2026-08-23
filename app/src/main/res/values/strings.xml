@@ -84,8 +84,22 @@
     <string name="widget_empty">All done for today</string>
     <string name="widget_complete">Mark complete</string>
 
+    <string name="tab_all">All</string>
+    <string name="tab_today">Today</string>
+    <string name="tab_weekend">Weekend</string>
+
+    <string name="plan_section_important_due">Important · Due Soon</string>
+    <string name="plan_section_important">Important</string>
+    <string name="plan_section_quick">Quick</string>
+    <string name="plan_section_today">Today</string>
+    <string name="plan_section_weekend">Weekend</string>
+
     <string name="empty_title">Let\'s get organized</string>
     <string name="empty_subtitle">You don\'t have any categories yet. Tap the + button to create your first category, then start adding tasks.</string>
+    <string name="empty_today_title">Nothing planned for today</string>
+    <string name="empty_today_subtitle">Mark tasks as Today to build your daily plan. Important and due-soon items will show up first.</string>
+    <string name="empty_weekend_title">Nothing for the weekend</string>
+    <string name="empty_weekend_subtitle">Tag tasks as Weekend to plan ahead. Important and due-soon items will show up first.</string>
 
     <string name="task_deleted">Task deleted</string>
     <string name="need_category_first">Create a category first to add tasks</string>

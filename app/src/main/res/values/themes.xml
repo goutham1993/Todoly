@@ -94,4 +94,37 @@
         <item name="android:minWidth">28dp</item>
         <item name="android:gravity">center</item>
     </style>
+
+    <style name="Widget.Todoly.BottomNav" parent="Widget.Material3.BottomNavigationView">
+        <item name="android:minHeight">52dp</item>
+        <item name="itemIconSize">20dp</item>
+        <item name="itemPaddingTop">4dp</item>
+        <item name="itemPaddingBottom">4dp</item>
+        <item name="itemActiveIndicatorStyle">@style/Widget.Todoly.BottomNav.ActiveIndicator</item>
+        <item name="itemTextAppearanceActive">@style/TextAppearance.Todoly.BottomNav.Active</item>
+        <item name="itemTextAppearanceInactive">@style/TextAppearance.Todoly.BottomNav</item>
+        <item name="itemHorizontalTranslationEnabled">false</item>
+        <item name="elevation">0dp</item>
+    </style>
+
+    <style name="Widget.Todoly.BottomNav.ActiveIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:width">42dp</item>
+        <item name="android:height">24dp</item>
+        <item name="marginHorizontal">4dp</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.Todoly.BottomNav.ActiveIndicator</item>
+    </style>
+
+    <style name="ShapeAppearance.Todoly.BottomNav.ActiveIndicator" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">12dp</item>
+    </style>
+
+    <style name="TextAppearance.Todoly.BottomNav" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:textSize">11sp</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="TextAppearance.Todoly.BottomNav.Active" parent="TextAppearance.Todoly.BottomNav">
+        <item name="android:textStyle">bold</item>
+    </style>
 </resources>

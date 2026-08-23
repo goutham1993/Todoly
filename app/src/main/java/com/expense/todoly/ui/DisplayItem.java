@@ -10,6 +10,12 @@ public class DisplayItem {
     public static final int TYPE_COMPLETED_HEADER = 2;
     public static final int TYPE_COMPLETED_ROW = 3;
     public static final int TYPE_ADD_TASK = 4;
+    public static final int TYPE_PLAN_SECTION_HEADER = 5;
+
+    public static final int PLAN_SECTION_IMPORTANT_DUE = 1;
+    public static final int PLAN_SECTION_IMPORTANT = 2;
+    public static final int PLAN_SECTION_QUICK = 3;
+    public static final int PLAN_SECTION_ALL = 4;
 
     public final int type;
 
@@ -19,10 +25,14 @@ public class DisplayItem {
     public Todo todo;
     public String categoryColor;
     public String categoryName;
+    public int planSectionId;
 
     public int completedCount;
 
     public long addCategoryId;
+
+    public String planSectionTitle;
+    public int planSectionCount;
 
     private DisplayItem(int type) {
         this.type = type;
@@ -36,10 +46,16 @@ public class DisplayItem {
     }
 
     public static DisplayItem todoRow(Todo todo, String categoryColor, String categoryName) {
+        return todoRow(todo, categoryColor, categoryName, 0);
+    }
+
+    public static DisplayItem todoRow(Todo todo, String categoryColor, String categoryName,
+                                      int planSectionId) {
         DisplayItem item = new DisplayItem(TYPE_TODO_ROW);
         item.todo = todo;
         item.categoryColor = categoryColor;
         item.categoryName = categoryName;
+        item.planSectionId = planSectionId;
         return item;
     }
 
@@ -65,11 +81,22 @@ public class DisplayItem {
         return item;
     }
 
+    public static DisplayItem planSectionHeader(int sectionId, String title, int count) {
+        DisplayItem item = new DisplayItem(TYPE_PLAN_SECTION_HEADER);
+        item.planSectionId = sectionId;
+        item.planSectionTitle = title;
+        item.planSectionCount = count;
+        return item;
+    }
+
     public long stableId() {
         switch (type) {
             case TYPE_CATEGORY_HEADER:
                 return 1_000_000_000L + category.id;
             case TYPE_TODO_ROW:
+                if (planSectionId != 0) {
+                    return 2_000_000_000L + (planSectionId * 100_000_000L) + todo.id;
+                }
                 return 2_000_000_000L + todo.id;
             case TYPE_COMPLETED_HEADER:
                 return 3_000_000_000L;
@@ -77,6 +104,8 @@ public class DisplayItem {
                 return 4_000_000_000L + todo.id;
             case TYPE_ADD_TASK:
                 return 5_000_000_000L + addCategoryId;
+            case TYPE_PLAN_SECTION_HEADER:
+                return 6_000_000_000L + planSectionId;
             default:
                 return RecyclerViewNoId;
         }

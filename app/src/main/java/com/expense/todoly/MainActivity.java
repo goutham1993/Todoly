@@ -15,6 +15,7 @@ import com.expense.todoly.databinding.ActivityMainBinding;
 import com.expense.todoly.ui.TodoViewModel;
 import com.expense.todoly.ui.dialog.AddCategoryDialog;
 import com.expense.todoly.ui.dialog.AddTodoBottomSheet;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,8 @@ public class MainActivity extends AppCompatActivity {
 
     private MenuItem expandItem;
     private MenuItem reorderItem;
+    private MenuItem viewItem;
+    private boolean updatingBottomNav = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,8 +53,14 @@ public class MainActivity extends AppCompatActivity {
             if (list != null) categories.addAll(list);
         });
 
-        viewModel.getViewMode().observe(this, this::updateMenuVisibility);
+        viewModel.getViewMode().observe(this, mode -> updateMenuVisibility());
+        viewModel.getHomeTab().observe(this, tab -> {
+            updateMenuVisibility();
+            syncBottomNav(tab);
+        });
         viewModel.getReorderCategoriesMode().observe(this, enabled -> updateReorderTitle());
+
+        setupBottomNav();
 
         binding.fab.setOnClickListener(v -> toggleFab());
         binding.scrim.setOnClickListener(v -> closeFab());
@@ -62,8 +71,50 @@ public class MainActivity extends AppCompatActivity {
         });
         binding.fabAddTodo.setOnClickListener(v -> {
             closeFab();
-            AddTodoBottomSheet.show(this, viewModel, new ArrayList<>(categories));
+            TodoViewModel.HomeTab tab = viewModel.getHomeTab().getValue();
+            boolean precheckToday = tab == TodoViewModel.HomeTab.TODAY;
+            boolean precheckWeekend = tab == TodoViewModel.HomeTab.WEEKEND;
+            AddTodoBottomSheet.show(this, viewModel, new ArrayList<>(categories),
+                    -1L, precheckToday, precheckWeekend);
         });
+    }
+
+    private void setupBottomNav() {
+        BottomNavigationView bottomNav = binding.bottomNav;
+        TodoViewModel.HomeTab initial = viewModel.getHomeTab().getValue();
+        if (initial == null) initial = TodoViewModel.HomeTab.ALL;
+        updatingBottomNav = true;
+        bottomNav.setSelectedItemId(homeTabToNavId(initial));
+        updatingBottomNav = false;
+
+        bottomNav.setOnItemSelectedListener(item -> {
+            if (updatingBottomNav) return true;
+            int id = item.getItemId();
+            if (id == R.id.nav_today) {
+                viewModel.setHomeTab(TodoViewModel.HomeTab.TODAY);
+            } else if (id == R.id.nav_weekend) {
+                viewModel.setHomeTab(TodoViewModel.HomeTab.WEEKEND);
+            } else {
+                viewModel.setHomeTab(TodoViewModel.HomeTab.ALL);
+            }
+            return true;
+        });
+    }
+
+    private void syncBottomNav(TodoViewModel.HomeTab tab) {
+        if (tab == null) tab = TodoViewModel.HomeTab.ALL;
+        int navId = homeTabToNavId(tab);
+        if (binding.bottomNav.getSelectedItemId() != navId) {
+            updatingBottomNav = true;
+            binding.bottomNav.setSelectedItemId(navId);
+            updatingBottomNav = false;
+        }
+    }
+
+    private static int homeTabToNavId(TodoViewModel.HomeTab tab) {
+        if (tab == TodoViewModel.HomeTab.TODAY) return R.id.nav_today;
+        if (tab == TodoViewModel.HomeTab.WEEKEND) return R.id.nav_weekend;
+        return R.id.nav_all;
     }
 
     private void toggleFab() {
@@ -114,10 +165,11 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         expandItem = menu.findItem(R.id.action_toggle_expand);
         reorderItem = menu.findItem(R.id.action_reorder_categories);
+        viewItem = menu.findItem(R.id.action_view);
         setupSearch(menu.findItem(R.id.action_search));
         updateExpandIcon();
         updateReorderTitle();
-        updateMenuVisibility(viewModel.getViewMode().getValue());
+        updateMenuVisibility();
         return true;
     }
 
@@ -165,6 +217,9 @@ public class MainActivity extends AppCompatActivity {
             updateExpandIcon();
             return true;
         } else if (id == R.id.action_view) {
+            if (viewModel.getHomeTab().getValue() != TodoViewModel.HomeTab.ALL) {
+                return true;
+            }
             showViewModeDialog();
             return true;
         } else if (id == R.id.action_reorder_categories) {
@@ -202,10 +257,14 @@ public class MainActivity extends AppCompatActivity {
         expandItem.setTitle(allExpanded ? R.string.collapse_all : R.string.expand_all);
     }
 
-    private void updateMenuVisibility(TodoViewModel.ViewMode mode) {
+    private void updateMenuVisibility() {
+        TodoViewModel.ViewMode mode = viewModel.getViewMode().getValue();
+        TodoViewModel.HomeTab tab = viewModel.getHomeTab().getValue();
+        boolean allTab = tab == null || tab == TodoViewModel.HomeTab.ALL;
         boolean grouped = mode == null || mode == TodoViewModel.ViewMode.GROUPED;
-        if (expandItem != null) expandItem.setVisible(grouped);
-        if (reorderItem != null) reorderItem.setVisible(grouped);
+        if (expandItem != null) expandItem.setVisible(allTab && grouped);
+        if (reorderItem != null) reorderItem.setVisible(allTab && grouped);
+        if (viewItem != null) viewItem.setVisible(allTab);
     }
 
     private void updateReorderTitle() {

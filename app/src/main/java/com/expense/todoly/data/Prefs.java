@@ -14,10 +14,15 @@ public final class Prefs {
     public static final String VIEW_MODE_GROUPED = "grouped";
     public static final String VIEW_MODE_LIST = "list";
 
+    public static final String HOME_TAB_ALL = "all";
+    public static final String HOME_TAB_TODAY = "today";
+    public static final String HOME_TAB_WEEKEND = "weekend";
+
     private static final String PREFS_NAME = "todoly_prefs";
     private static final String KEY_THEME_MODE = "theme_mode";
     private static final String KEY_LAST_ROLLOVER_DAY = "last_rollover_day";
     private static final String KEY_VIEW_MODE = "view_mode";
+    private static final String KEY_HOME_TAB = "home_tab";
 
     private Prefs() {
     }
@@ -65,5 +70,13 @@ public final class Prefs {
 
     public static void setViewMode(Context context, String viewMode) {
         prefs(context).edit().putString(KEY_VIEW_MODE, viewMode).apply();
+    }
+
+    public static String getHomeTab(Context context) {
+        return prefs(context).getString(KEY_HOME_TAB, HOME_TAB_ALL);
+    }
+
+    public static void setHomeTab(Context context, String homeTab) {
+        prefs(context).edit().putString(KEY_HOME_TAB, homeTab).apply();
     }
 }

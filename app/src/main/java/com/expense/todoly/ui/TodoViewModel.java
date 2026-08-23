@@ -9,6 +9,7 @@ import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 
+import com.expense.todoly.R;
 import com.expense.todoly.data.AppRepository;
 import com.expense.todoly.data.Prefs;
 import com.expense.todoly.data.entity.Category;
@@ -24,6 +25,8 @@ public class TodoViewModel extends AndroidViewModel {
 
     public enum ViewMode {GROUPED, LIST}
 
+    public enum HomeTab {ALL, TODAY, WEEKEND}
+
     private final AppRepository repository;
 
     private final LiveData<List<CategoryWithCount>> categoriesWithCounts;
@@ -34,6 +37,7 @@ public class TodoViewModel extends AndroidViewModel {
     private final LiveData<Integer> completedCount;
 
     private final MutableLiveData<ViewMode> viewMode;
+    private final MutableLiveData<HomeTab> homeTab;
     private final MutableLiveData<Boolean> reorderCategoriesMode = new MutableLiveData<>(false);
     private final MutableLiveData<Set<Long>> collapsedCategoryIds = new MutableLiveData<>(new HashSet<>());
     private final MutableLiveData<Boolean> completedExpanded = new MutableLiveData<>(false);
@@ -47,6 +51,8 @@ public class TodoViewModel extends AndroidViewModel {
     private final MutableLiveData<Boolean> filterTomorrow = new MutableLiveData<>(false);
 
     private final MediatorLiveData<List<DisplayItem>> displayItems = new MediatorLiveData<>();
+    private final MediatorLiveData<Integer> displayPendingCount = new MediatorLiveData<>();
+    private final MediatorLiveData<Integer> displayCompletedCount = new MediatorLiveData<>();
 
     private final MutableLiveData<Event<Integer>> celebrationEvent = new MutableLiveData<>();
     private int completionStreak = 0;
@@ -56,6 +62,7 @@ public class TodoViewModel extends AndroidViewModel {
         super(application);
         repository = new AppRepository(application);
         viewMode = new MutableLiveData<>(loadSavedViewMode(application));
+        homeTab = new MutableLiveData<>(loadSavedHomeTab(application));
         categoriesWithCounts = repository.getCategoriesWithCounts();
         categories = repository.getCategories();
         activeTodos = repository.getActiveTodos();
@@ -67,9 +74,19 @@ public class TodoViewModel extends AndroidViewModel {
             applyInitialCollapse(v);
             rebuild();
         });
-        displayItems.addSource(activeTodos, v -> rebuild());
-        displayItems.addSource(completedTodos, v -> rebuild());
+        displayItems.addSource(activeTodos, v -> {
+            rebuild();
+            rebuildStats();
+        });
+        displayItems.addSource(completedTodos, v -> {
+            rebuild();
+            rebuildStats();
+        });
         displayItems.addSource(viewMode, v -> rebuild());
+        displayItems.addSource(homeTab, v -> {
+            rebuild();
+            rebuildStats();
+        });
         displayItems.addSource(collapsedCategoryIds, v -> rebuild());
         displayItems.addSource(completedExpanded, v -> rebuild());
         displayItems.addSource(searchQuery, v -> rebuild());
@@ -80,6 +97,10 @@ public class TodoViewModel extends AndroidViewModel {
         displayItems.addSource(filterTimesensitive, v -> rebuild());
         displayItems.addSource(filterToday, v -> rebuild());
         displayItems.addSource(filterTomorrow, v -> rebuild());
+
+        displayPendingCount.addSource(pendingCount, v -> rebuildStats());
+        displayCompletedCount.addSource(completedCount, v -> rebuildStats());
+        rebuildStats();
     }
 
     public LiveData<List<DisplayItem>> getDisplayItems() {
@@ -95,15 +116,19 @@ public class TodoViewModel extends AndroidViewModel {
     }
 
     public LiveData<Integer> getPendingCount() {
-        return pendingCount;
+        return displayPendingCount;
     }
 
     public LiveData<Integer> getCompletedCount() {
-        return completedCount;
+        return displayCompletedCount;
     }
 
     public LiveData<ViewMode> getViewMode() {
         return viewMode;
+    }
+
+    public LiveData<HomeTab> getHomeTab() {
+        return homeTab;
     }
 
     public LiveData<Boolean> getReorderCategoriesMode() {
@@ -111,10 +136,12 @@ public class TodoViewModel extends AndroidViewModel {
     }
 
     public void toggleReorderCategoriesMode() {
+        if (homeTab.getValue() != HomeTab.ALL) return;
         reorderCategoriesMode.setValue(!Boolean.TRUE.equals(reorderCategoriesMode.getValue()));
     }
 
     public void setReorderCategoriesMode(boolean enabled) {
+        if (enabled && homeTab.getValue() != HomeTab.ALL) return;
         if (!Boolean.valueOf(enabled).equals(reorderCategoriesMode.getValue())) {
             reorderCategoriesMode.setValue(enabled);
         }
@@ -158,11 +185,47 @@ public class TodoViewModel extends AndroidViewModel {
         collapsedCategoryIds.setValue(collapsed);
     }
 
+    private void rebuildStats() {
+        HomeTab tab = homeTab.getValue();
+        if (tab == null) tab = HomeTab.ALL;
+
+        if (tab == HomeTab.ALL) {
+            Integer pending = pendingCount.getValue();
+            Integer completed = completedCount.getValue();
+            displayPendingCount.setValue(pending == null ? 0 : pending);
+            displayCompletedCount.setValue(completed == null ? 0 : completed);
+            return;
+        }
+
+        List<Todo> active = activeTodos.getValue();
+        List<Todo> completed = completedTodos.getValue();
+        if (active == null) active = new ArrayList<>();
+        if (completed == null) completed = new ArrayList<>();
+
+        int pending = 0;
+        for (Todo t : active) {
+            if (matchesDayFlag(t, tab)) pending++;
+        }
+        int done = 0;
+        for (Todo t : completed) {
+            if (matchesDayFlag(t, tab)) done++;
+        }
+        displayPendingCount.setValue(pending);
+        displayCompletedCount.setValue(done);
+    }
+
+    private static boolean matchesDayFlag(Todo todo, HomeTab tab) {
+        if (tab == HomeTab.TODAY) return todo.today;
+        if (tab == HomeTab.WEEKEND) return todo.weekend;
+        return true;
+    }
+
     private void rebuild() {
         List<CategoryWithCount> cats = categoriesWithCounts.getValue();
         List<Todo> active = activeTodos.getValue();
         List<Todo> completed = completedTodos.getValue();
         ViewMode mode = viewMode.getValue();
+        HomeTab tab = homeTab.getValue();
         Set<Long> collapsed = collapsedCategoryIds.getValue();
         boolean compExpanded = Boolean.TRUE.equals(completedExpanded.getValue());
 
@@ -171,9 +234,16 @@ public class TodoViewModel extends AndroidViewModel {
         if (completed == null) completed = new ArrayList<>();
         if (collapsed == null) collapsed = new HashSet<>();
         if (mode == null) mode = ViewMode.GROUPED;
+        if (tab == null) tab = HomeTab.ALL;
 
         String query = searchQuery.getValue();
         if (query == null) query = "";
+
+        if (tab == HomeTab.TODAY || tab == HomeTab.WEEKEND) {
+            displayItems.setValue(buildPlanResults(cats, active, tab, query));
+            return;
+        }
+
         boolean fImportant = Boolean.TRUE.equals(filterImportant.getValue());
         boolean fQuick = Boolean.TRUE.equals(filterQuick.getValue());
         boolean fWeekend = Boolean.TRUE.equals(filterWeekend.getValue());
@@ -226,6 +296,64 @@ public class TodoViewModel extends AndroidViewModel {
         }
 
         displayItems.setValue(items);
+    }
+
+    private List<DisplayItem> buildPlanResults(List<CategoryWithCount> cats, List<Todo> active,
+                                               HomeTab tab, String query) {
+        List<DisplayItem> items = new ArrayList<>();
+        Application app = getApplication();
+        Set<Long> claimed = new HashSet<>();
+
+        // Most specific first so each task appears in only one section.
+        appendPlanSection(items, cats, active, query, claimed,
+                DisplayItem.PLAN_SECTION_IMPORTANT_DUE,
+                app.getString(R.string.plan_section_important_due),
+                t -> matchesDayFlag(t, tab) && t.important && t.timesensitive);
+
+        appendPlanSection(items, cats, active, query, claimed,
+                DisplayItem.PLAN_SECTION_IMPORTANT,
+                app.getString(R.string.plan_section_important),
+                t -> matchesDayFlag(t, tab) && t.important);
+
+        appendPlanSection(items, cats, active, query, claimed,
+                DisplayItem.PLAN_SECTION_QUICK,
+                app.getString(R.string.plan_section_quick),
+                t -> matchesDayFlag(t, tab) && t.quick);
+
+        String allTitle = tab == HomeTab.WEEKEND
+                ? app.getString(R.string.plan_section_weekend)
+                : app.getString(R.string.plan_section_today);
+        appendPlanSection(items, cats, active, query, claimed,
+                DisplayItem.PLAN_SECTION_ALL, allTitle,
+                t -> matchesDayFlag(t, tab));
+
+        return items;
+    }
+
+    private interface PlanMatcher {
+        boolean matches(Todo todo);
+    }
+
+    private void appendPlanSection(List<DisplayItem> items, List<CategoryWithCount> cats,
+                                   List<Todo> active, String query, Set<Long> claimed,
+                                   int sectionId, String title, PlanMatcher matcher) {
+        List<Todo> matched = new ArrayList<>();
+        for (Todo t : active) {
+            if (claimed.contains(t.id)) continue;
+            if (matcher.matches(t) && matches(t, query)) {
+                matched.add(t);
+                claimed.add(t.id);
+            }
+        }
+        if (matched.isEmpty()) return;
+
+        items.add(DisplayItem.planSectionHeader(sectionId, title, matched.size()));
+        for (Todo t : matched) {
+            CategoryWithCount cat = findCategory(cats, t.categoryId);
+            String color = cat != null ? cat.colorHex : "#9E9E9E";
+            String name = cat != null ? cat.name : "";
+            items.add(DisplayItem.todoRow(t, color, name, sectionId));
+        }
     }
 
     private List<DisplayItem> buildFilteredResults(List<CategoryWithCount> cats, List<Todo> active,
@@ -378,10 +506,32 @@ public class TodoViewModel extends AndroidViewModel {
                 mode == ViewMode.LIST ? Prefs.VIEW_MODE_LIST : Prefs.VIEW_MODE_GROUPED);
     }
 
+    public void setHomeTab(HomeTab tab) {
+        if (tab == null || tab == homeTab.getValue()) return;
+        if (tab != HomeTab.ALL) {
+            setReorderCategoriesMode(false);
+        }
+        homeTab.setValue(tab);
+        Prefs.setHomeTab(getApplication(), toPrefsHomeTab(tab));
+    }
+
     private static ViewMode loadSavedViewMode(Application application) {
         return Prefs.VIEW_MODE_LIST.equals(Prefs.getViewMode(application))
                 ? ViewMode.LIST
                 : ViewMode.GROUPED;
+    }
+
+    private static HomeTab loadSavedHomeTab(Application application) {
+        String saved = Prefs.getHomeTab(application);
+        if (Prefs.HOME_TAB_TODAY.equals(saved)) return HomeTab.TODAY;
+        if (Prefs.HOME_TAB_WEEKEND.equals(saved)) return HomeTab.WEEKEND;
+        return HomeTab.ALL;
+    }
+
+    private static String toPrefsHomeTab(HomeTab tab) {
+        if (tab == HomeTab.TODAY) return Prefs.HOME_TAB_TODAY;
+        if (tab == HomeTab.WEEKEND) return Prefs.HOME_TAB_WEEKEND;
+        return Prefs.HOME_TAB_ALL;
     }
 
     public void setSearchQuery(String query) {

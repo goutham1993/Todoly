@@ -45,8 +45,11 @@ public class HomeFragment extends Fragment {
     private RecyclerView recycler;
     private View emptyState;
     private View reorderBar;
+    private View filterBar;
     private TextView pendingCount;
     private TextView completedCount;
+    private TextView emptyTitle;
+    private TextView emptySubtitle;
     private Chip chipFilterImportant;
     private Chip chipFilterQuick;
     private Chip chipFilterWeekend;
@@ -72,7 +75,10 @@ public class HomeFragment extends Fragment {
 
         recycler = view.findViewById(R.id.recycler);
         emptyState = view.findViewById(R.id.emptyState);
+        emptyTitle = view.findViewById(R.id.emptyTitle);
+        emptySubtitle = view.findViewById(R.id.emptySubtitle);
         reorderBar = view.findViewById(R.id.reorderBar);
+        filterBar = view.findViewById(R.id.filterBar);
         view.findViewById(R.id.reorderDoneButton).setOnClickListener(v ->
                 viewModel.setReorderCategoriesMode(false));
         pendingCount = view.findViewById(R.id.pendingCount);
@@ -153,9 +159,15 @@ public class HomeFragment extends Fragment {
             reorderBar.setVisibility(on ? View.VISIBLE : View.GONE);
         });
 
+        viewModel.getHomeTab().observe(getViewLifecycleOwner(), this::onHomeTabChanged);
+
         viewModel.getDisplayItems().observe(getViewLifecycleOwner(), items -> {
             adapter.submit(items);
-            emptyState.setVisibility(items.isEmpty() ? View.VISIBLE : View.GONE);
+            boolean empty = items == null || items.isEmpty();
+            emptyState.setVisibility(empty ? View.VISIBLE : View.GONE);
+            if (empty) {
+                updateEmptyCopy(viewModel.getHomeTab().getValue());
+            }
         });
 
         viewModel.getPendingCount().observe(getViewLifecycleOwner(), count ->
@@ -169,6 +181,30 @@ public class HomeFragment extends Fragment {
             Integer streak = event.getIfNotHandled();
             if (streak != null) celebrate(streak);
         });
+    }
+
+    private void onHomeTabChanged(TodoViewModel.HomeTab tab) {
+        if (tab == null) tab = TodoViewModel.HomeTab.ALL;
+        boolean plan = tab != TodoViewModel.HomeTab.ALL;
+        adapter.setPlanMode(plan);
+        filterBar.setVisibility(plan ? View.GONE : View.VISIBLE);
+
+        if (emptyState.getVisibility() == View.VISIBLE) {
+            updateEmptyCopy(tab);
+        }
+    }
+
+    private void updateEmptyCopy(TodoViewModel.HomeTab tab) {
+        if (tab == TodoViewModel.HomeTab.TODAY) {
+            emptyTitle.setText(R.string.empty_today_title);
+            emptySubtitle.setText(R.string.empty_today_subtitle);
+        } else if (tab == TodoViewModel.HomeTab.WEEKEND) {
+            emptyTitle.setText(R.string.empty_weekend_title);
+            emptySubtitle.setText(R.string.empty_weekend_subtitle);
+        } else {
+            emptyTitle.setText(R.string.empty_title);
+            emptySubtitle.setText(R.string.empty_subtitle);
+        }
     }
 
     private void celebrate(int streak) {
@@ -357,8 +393,8 @@ public class HomeFragment extends Fragment {
                     return makeMovementFlags(ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0);
                 }
                 if (type == DisplayItem.TYPE_TODO_ROW) {
-                    return makeMovementFlags(ItemTouchHelper.UP | ItemTouchHelper.DOWN,
-                            ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
+                    int drag = adapter.isPlanMode() ? 0 : (ItemTouchHelper.UP | ItemTouchHelper.DOWN);
+                    return makeMovementFlags(drag, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
                 }
                 if (type == DisplayItem.TYPE_COMPLETED_ROW) {
                     return makeMovementFlags(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);

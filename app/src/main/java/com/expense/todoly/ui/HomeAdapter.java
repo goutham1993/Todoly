@@ -44,6 +44,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final List<DisplayItem> items = new ArrayList<>();
     private final Listener listener;
     private boolean reorderCategoriesMode = false;
+    private boolean planMode = false;
 
     public HomeAdapter(Listener listener) {
         this.listener = listener;
@@ -58,6 +59,20 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 notifyItemChanged(i);
             }
         }
+    }
+
+    public void setPlanMode(boolean enabled) {
+        if (planMode == enabled) return;
+        planMode = enabled;
+        for (int i = 0; i < items.size(); i++) {
+            if (items.get(i).type == DisplayItem.TYPE_TODO_ROW) {
+                notifyItemChanged(i);
+            }
+        }
+    }
+
+    public boolean isPlanMode() {
+        return planMode;
     }
 
     public boolean isReorderCategoriesMode() {
@@ -105,6 +120,10 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 return a.expanded == b.expanded && a.completedCount == b.completedCount;
             case DisplayItem.TYPE_ADD_TASK:
                 return a.addCategoryId == b.addCategoryId && a.categoryColor.equals(b.categoryColor);
+            case DisplayItem.TYPE_PLAN_SECTION_HEADER:
+                return a.planSectionId == b.planSectionId
+                        && a.planSectionCount == b.planSectionCount
+                        && equalsNullable(a.planSectionTitle, b.planSectionTitle);
             case DisplayItem.TYPE_TODO_ROW:
             case DisplayItem.TYPE_COMPLETED_ROW:
                 return a.todo.title.equals(b.todo.title)
@@ -116,6 +135,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         && a.todo.timesensitive == b.todo.timesensitive
                         && a.todo.today == b.todo.today
                         && a.todo.tomorrow == b.todo.tomorrow
+                        && a.planSectionId == b.planSectionId
                         && a.categoryColor.equals(b.categoryColor)
                         && equalsNullable(a.categoryName, b.categoryName);
             default:
@@ -223,6 +243,8 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 return new CompletedHeaderVH(inflater.inflate(R.layout.item_completed_header, parent, false));
             case DisplayItem.TYPE_ADD_TASK:
                 return new AddTaskVH(inflater.inflate(R.layout.item_add_task, parent, false));
+            case DisplayItem.TYPE_PLAN_SECTION_HEADER:
+                return new PlanSectionHeaderVH(inflater.inflate(R.layout.item_plan_section_header, parent, false));
             default:
                 return new TodoVH(inflater.inflate(R.layout.item_todo, parent, false));
         }
@@ -237,6 +259,8 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             ((CompletedHeaderVH) holder).bind(item);
         } else if (holder instanceof AddTaskVH) {
             ((AddTaskVH) holder).bind(item);
+        } else if (holder instanceof PlanSectionHeaderVH) {
+            ((PlanSectionHeaderVH) holder).bind(item);
         } else {
             ((TodoVH) holder).bind(item);
         }
@@ -332,6 +356,22 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
+    class PlanSectionHeaderVH extends RecyclerView.ViewHolder {
+        final TextView title;
+        final TextView badge;
+
+        PlanSectionHeaderVH(@NonNull View itemView) {
+            super(itemView);
+            title = itemView.findViewById(R.id.sectionTitle);
+            badge = itemView.findViewById(R.id.countBadge);
+        }
+
+        void bind(DisplayItem item) {
+            title.setText(item.planSectionTitle);
+            badge.setText(String.valueOf(item.planSectionCount));
+        }
+    }
+
     class AddTaskVH extends RecyclerView.ViewHolder {
         final ImageView addIcon;
 
@@ -389,7 +429,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             iconWeekday.setVisibility(item.todo.weekday ? View.VISIBLE : View.GONE);
             iconTimesensitive.setVisibility(item.todo.timesensitive ? View.VISIBLE : View.GONE);
 
-            boolean reorderable = item.type == DisplayItem.TYPE_TODO_ROW;
+            boolean reorderable = item.type == DisplayItem.TYPE_TODO_ROW && !planMode;
             dragHandle.setVisibility(reorderable ? View.VISIBLE : View.GONE);
             if (reorderable) {
                 dragHandle.setOnTouchListener((v, event) -> {

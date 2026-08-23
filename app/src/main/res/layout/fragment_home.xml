@@ -242,7 +242,7 @@
             android:layout_height="match_parent"
             android:clipToPadding="false"
             android:paddingTop="8dp"
-            android:paddingBottom="120dp"
+            android:paddingBottom="140dp"
             android:scrollbars="none"
             tools:listitem="@layout/item_todo" />
 
@@ -264,6 +264,7 @@
                 android:src="@drawable/ic_empty_tasks" />
 
             <TextView
+                android:id="@+id/emptyTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
@@ -273,6 +274,7 @@
                 android:textStyle="bold" />
 
             <TextView
+                android:id="@+id/emptySubtitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"

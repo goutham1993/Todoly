@@ -29,21 +29,30 @@ import java.util.List;
 public class AddTodoBottomSheet {
 
     public static void show(Context context, TodoViewModel viewModel, List<Category> categories) {
-        show(context, viewModel, categories, -1L);
+        show(context, viewModel, categories, -1L, false, false);
     }
 
     public static void show(Context context, TodoViewModel viewModel, List<Category> categories,
                             long preselectedCategoryId) {
-        open(context, viewModel, categories, preselectedCategoryId, null);
+        show(context, viewModel, categories, preselectedCategoryId, false, false);
+    }
+
+    public static void show(Context context, TodoViewModel viewModel, List<Category> categories,
+                            long preselectedCategoryId, boolean precheckToday,
+                            boolean precheckWeekend) {
+        open(context, viewModel, categories, preselectedCategoryId, null,
+                precheckToday, precheckWeekend);
     }
 
     public static void showEdit(Context context, TodoViewModel viewModel, List<Category> categories,
                                 Todo editing) {
-        open(context, viewModel, categories, editing == null ? -1L : editing.categoryId, editing);
+        open(context, viewModel, categories, editing == null ? -1L : editing.categoryId, editing,
+                false, false);
     }
 
     private static void open(Context context, TodoViewModel viewModel, List<Category> categories,
-                             long preselectedCategoryId, Todo editing) {
+                             long preselectedCategoryId, Todo editing,
+                             boolean precheckToday, boolean precheckWeekend) {
         if (categories == null || categories.isEmpty()) {
             Toast.makeText(context, R.string.need_category_first, Toast.LENGTH_SHORT).show();
             AddCategoryDialog.show(context, viewModel);
@@ -80,6 +89,12 @@ public class AddTodoBottomSheet {
             chipToday.setChecked(editing.today);
             chipTomorrow.setChecked(editing.tomorrow);
             chipTimesensitive.setChecked(editing.timesensitive);
+        } else {
+            if (precheckToday) chipToday.setChecked(true);
+            if (precheckWeekend) {
+                chipWeekend.setChecked(true);
+                chipWeekday.setChecked(false);
+            }
         }
 
         chipTomorrow.setOnCheckedChangeListener((btn, checked) -> {
@@ -182,9 +197,9 @@ public class AddTodoBottomSheet {
                 notesInput.setText("");
                 chipImportant.setChecked(false);
                 chipQuick.setChecked(false);
-                chipWeekend.setChecked(false);
+                chipWeekend.setChecked(precheckWeekend);
                 chipWeekday.setChecked(false);
-                chipToday.setChecked(false);
+                chipToday.setChecked(precheckToday);
                 chipTomorrow.setChecked(false);
                 chipTimesensitive.setChecked(false);
                 titleInput.requestFocus();

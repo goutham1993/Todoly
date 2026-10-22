@@ -81,11 +81,13 @@ public class DisplayItem {
         return item;
     }
 
-    public static DisplayItem planSectionHeader(int sectionId, String title, int count) {
+    public static DisplayItem planSectionHeader(int sectionId, String title, int count,
+                                               boolean expanded) {
         DisplayItem item = new DisplayItem(TYPE_PLAN_SECTION_HEADER);
         item.planSectionId = sectionId;
         item.planSectionTitle = title;
         item.planSectionCount = count;
+        item.expanded = expanded;
         return item;
     }
 

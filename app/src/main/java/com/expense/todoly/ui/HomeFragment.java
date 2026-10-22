@@ -103,6 +103,11 @@ public class HomeFragment extends Fragment {
             }
 
             @Override
+            public void onPlanSectionHeaderClick(int sectionId) {
+                viewModel.togglePlanSection(sectionId);
+            }
+
+            @Override
             public void onCategoryLongClick(com.expense.todoly.data.model.CategoryWithCount category) {
                 showCategoryActions(category);
             }

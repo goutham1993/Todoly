@@ -30,6 +30,8 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         void onCompletedHeaderClick();
 
+        void onPlanSectionHeaderClick(int sectionId);
+
         void onTodoChecked(DisplayItem item, boolean checked);
 
         void onTodoClick(DisplayItem item);
@@ -122,6 +124,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 return a.addCategoryId == b.addCategoryId && a.categoryColor.equals(b.categoryColor);
             case DisplayItem.TYPE_PLAN_SECTION_HEADER:
                 return a.planSectionId == b.planSectionId
+                        && a.expanded == b.expanded
                         && a.planSectionCount == b.planSectionCount
                         && equalsNullable(a.planSectionTitle, b.planSectionTitle);
             case DisplayItem.TYPE_TODO_ROW:
@@ -359,16 +362,20 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     class PlanSectionHeaderVH extends RecyclerView.ViewHolder {
         final TextView title;
         final TextView badge;
+        final ImageView chevron;
 
         PlanSectionHeaderVH(@NonNull View itemView) {
             super(itemView);
             title = itemView.findViewById(R.id.sectionTitle);
             badge = itemView.findViewById(R.id.countBadge);
+            chevron = itemView.findViewById(R.id.chevron);
         }
 
         void bind(DisplayItem item) {
             title.setText(item.planSectionTitle);
             badge.setText(String.valueOf(item.planSectionCount));
+            chevron.setRotation(item.expanded ? 0f : -90f);
+            itemView.setOnClickListener(v -> listener.onPlanSectionHeaderClick(item.planSectionId));
         }
     }
 

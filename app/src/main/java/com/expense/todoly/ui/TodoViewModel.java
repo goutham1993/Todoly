@@ -40,6 +40,7 @@ public class TodoViewModel extends AndroidViewModel {
     private final MutableLiveData<HomeTab> homeTab;
     private final MutableLiveData<Boolean> reorderCategoriesMode = new MutableLiveData<>(false);
     private final MutableLiveData<Set<Long>> collapsedCategoryIds = new MutableLiveData<>(new HashSet<>());
+    private final MutableLiveData<Set<String>> collapsedPlanSections = new MutableLiveData<>(new HashSet<>());
     private final MutableLiveData<Boolean> completedExpanded = new MutableLiveData<>(false);
     private final MutableLiveData<String> searchQuery = new MutableLiveData<>("");
     private final MutableLiveData<Boolean> filterImportant = new MutableLiveData<>(false);
@@ -88,6 +89,7 @@ public class TodoViewModel extends AndroidViewModel {
             rebuildStats();
         });
         displayItems.addSource(collapsedCategoryIds, v -> rebuild());
+        displayItems.addSource(collapsedPlanSections, v -> rebuild());
         displayItems.addSource(completedExpanded, v -> rebuild());
         displayItems.addSource(searchQuery, v -> rebuild());
         displayItems.addSource(filterImportant, v -> rebuild());
@@ -304,18 +306,21 @@ public class TodoViewModel extends AndroidViewModel {
         Application app = getApplication();
         Set<Long> claimed = new HashSet<>();
 
+        Set<String> collapsed = collapsedPlanSections.getValue();
+        if (collapsed == null) collapsed = new HashSet<>();
+
         // Most specific first so each task appears in only one section.
-        appendPlanSection(items, cats, active, query, claimed,
+        appendPlanSection(items, cats, active, query, claimed, collapsed, tab,
                 DisplayItem.PLAN_SECTION_IMPORTANT_DUE,
                 app.getString(R.string.plan_section_important_due),
                 t -> matchesDayFlag(t, tab) && t.important && t.timesensitive);
 
-        appendPlanSection(items, cats, active, query, claimed,
+        appendPlanSection(items, cats, active, query, claimed, collapsed, tab,
                 DisplayItem.PLAN_SECTION_IMPORTANT,
                 app.getString(R.string.plan_section_important),
                 t -> matchesDayFlag(t, tab) && t.important);
 
-        appendPlanSection(items, cats, active, query, claimed,
+        appendPlanSection(items, cats, active, query, claimed, collapsed, tab,
                 DisplayItem.PLAN_SECTION_QUICK,
                 app.getString(R.string.plan_section_quick),
                 t -> matchesDayFlag(t, tab) && t.quick);
@@ -323,7 +328,7 @@ public class TodoViewModel extends AndroidViewModel {
         String allTitle = tab == HomeTab.WEEKEND
                 ? app.getString(R.string.plan_section_weekend)
                 : app.getString(R.string.plan_section_today);
-        appendPlanSection(items, cats, active, query, claimed,
+        appendPlanSection(items, cats, active, query, claimed, collapsed, tab,
                 DisplayItem.PLAN_SECTION_ALL, allTitle,
                 t -> matchesDayFlag(t, tab));
 
@@ -336,6 +341,7 @@ public class TodoViewModel extends AndroidViewModel {
 
     private void appendPlanSection(List<DisplayItem> items, List<CategoryWithCount> cats,
                                    List<Todo> active, String query, Set<Long> claimed,
+                                   Set<String> collapsed, HomeTab tab,
                                    int sectionId, String title, PlanMatcher matcher) {
         List<Todo> matched = new ArrayList<>();
         for (Todo t : active) {
@@ -347,13 +353,32 @@ public class TodoViewModel extends AndroidViewModel {
         }
         if (matched.isEmpty()) return;
 
-        items.add(DisplayItem.planSectionHeader(sectionId, title, matched.size()));
+        boolean expanded = !collapsed.contains(planSectionKey(tab, sectionId));
+        items.add(DisplayItem.planSectionHeader(sectionId, title, matched.size(), expanded));
+        if (!expanded) return;
+
         for (Todo t : matched) {
             CategoryWithCount cat = findCategory(cats, t.categoryId);
             String color = cat != null ? cat.colorHex : "#9E9E9E";
             String name = cat != null ? cat.name : "";
             items.add(DisplayItem.todoRow(t, color, name, sectionId));
         }
+    }
+
+    private static String planSectionKey(HomeTab tab, int sectionId) {
+        return tab.name() + ":" + sectionId;
+    }
+
+    public void togglePlanSection(int sectionId) {
+        HomeTab tab = homeTab.getValue();
+        if (tab != HomeTab.TODAY && tab != HomeTab.WEEKEND) return;
+        Set<String> current = collapsedPlanSections.getValue();
+        Set<String> collapsed = current == null ? new HashSet<>() : new HashSet<>(current);
+        String key = planSectionKey(tab, sectionId);
+        if (!collapsed.remove(key)) {
+            collapsed.add(key);
+        }
+        collapsedPlanSections.setValue(collapsed);
     }
 
     private List<DisplayItem> buildFilteredResults(List<CategoryWithCount> cats, List<Todo> active,

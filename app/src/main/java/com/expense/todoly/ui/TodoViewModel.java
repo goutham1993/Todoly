@@ -17,6 +17,7 @@ import com.expense.todoly.data.entity.Todo;
 import com.expense.todoly.data.model.CategoryWithCount;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -351,6 +352,7 @@ public class TodoViewModel extends AndroidViewModel {
                 claimed.add(t.id);
             }
         }
+        sortPlanSection(matched, tab);
         if (matched.isEmpty()) return;
 
         boolean expanded = !collapsed.contains(planSectionKey(tab, sectionId));
@@ -363,6 +365,23 @@ public class TodoViewModel extends AndroidViewModel {
             String name = cat != null ? cat.name : "";
             items.add(DisplayItem.todoRow(t, color, name, sectionId));
         }
+    }
+
+    private static void sortPlanSection(List<Todo> matched, HomeTab tab) {
+        Collections.sort(matched, (a, b) -> {
+            int order = Integer.compare(planOrderKey(a, tab), planOrderKey(b, tab));
+            if (order != 0) return order;
+            int category = Long.compare(a.categoryId, b.categoryId);
+            if (category != 0) return category;
+            int sort = Integer.compare(a.sortOrder, b.sortOrder);
+            if (sort != 0) return sort;
+            return Long.compare(a.createdAt, b.createdAt);
+        });
+    }
+
+    private static int planOrderKey(Todo todo, HomeTab tab) {
+        int order = tab == HomeTab.WEEKEND ? todo.weekendSortOrder : todo.todaySortOrder;
+        return order < 0 ? Integer.MAX_VALUE : order;
     }
 
     private static String planSectionKey(HomeTab tab, int sectionId) {
@@ -459,6 +478,21 @@ public class TodoViewModel extends AndroidViewModel {
 
     public void reorderTodos(List<Long> orderedIds) {
         repository.reorderTodos(orderedIds);
+    }
+
+    public void reorderPlan(HomeTab tab, List<Long> orderedIds) {
+        if (tab != HomeTab.TODAY && tab != HomeTab.WEEKEND) return;
+        if (orderedIds == null || orderedIds.isEmpty()) return;
+        repository.reorderPlan(tab == HomeTab.WEEKEND, orderedIds);
+    }
+
+    public boolean isSearchActive() {
+        String query = searchQuery.getValue();
+        return query != null && !query.isEmpty();
+    }
+
+    public LiveData<String> getSearchQuery() {
+        return searchQuery;
     }
 
     public void reorderCategories(List<Long> orderedIds) {

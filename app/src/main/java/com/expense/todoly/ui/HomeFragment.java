@@ -166,6 +166,9 @@ public class HomeFragment extends Fragment {
 
         viewModel.getHomeTab().observe(getViewLifecycleOwner(), this::onHomeTabChanged);
 
+        viewModel.getSearchQuery().observe(getViewLifecycleOwner(), query ->
+                adapter.setSearchActive(query != null && !query.isEmpty()));
+
         viewModel.getDisplayItems().observe(getViewLifecycleOwner(), items -> {
             adapter.submit(items);
             boolean empty = items == null || items.isEmpty();
@@ -331,6 +334,8 @@ public class HomeFragment extends Fragment {
             private boolean reordered = false;
             private long dragCategoryId = -1L;
             private boolean reorderedCategories = false;
+            private boolean reorderedPlan = false;
+            private int dragPlanSectionId = 0;
 
             @Override
             public boolean isLongPressDragEnabled() {
@@ -357,6 +362,14 @@ public class HomeFragment extends Fragment {
                 if (from.type != DisplayItem.TYPE_TODO_ROW || to.type != DisplayItem.TYPE_TODO_ROW) {
                     return false;
                 }
+                if (adapter.isPlanMode()) {
+                    if (viewModel.isSearchActive()) return false;
+                    if (from.planSectionId == 0 || from.planSectionId != to.planSectionId) return false;
+                    adapter.moveItem(fromPos, toPos);
+                    reorderedPlan = true;
+                    dragPlanSectionId = from.planSectionId;
+                    return true;
+                }
                 if (from.todo.categoryId != to.todo.categoryId) return false;
                 adapter.moveItem(fromPos, toPos);
                 reordered = true;
@@ -373,6 +386,13 @@ public class HomeFragment extends Fragment {
                 if (from.type == DisplayItem.TYPE_CATEGORY_HEADER) {
                     return to.type == DisplayItem.TYPE_CATEGORY_HEADER;
                 }
+                if (adapter.isPlanMode()) {
+                    return !viewModel.isSearchActive()
+                            && from.type == DisplayItem.TYPE_TODO_ROW
+                            && to.type == DisplayItem.TYPE_TODO_ROW
+                            && from.planSectionId != 0
+                            && from.planSectionId == to.planSectionId;
+                }
                 return from.todo != null && to.todo != null
                         && to.type == DisplayItem.TYPE_TODO_ROW
                         && from.todo.categoryId == to.todo.categoryId;
@@ -383,12 +403,17 @@ public class HomeFragment extends Fragment {
                 super.clearView(rv, vh);
                 if (reorderedCategories) {
                     viewModel.reorderCategories(adapter.orderedCategoryIds());
+                } else if (reorderedPlan && dragPlanSectionId != 0) {
+                    viewModel.reorderPlan(viewModel.getHomeTab().getValue(),
+                            adapter.orderedTodoIdsForPlanSection(dragPlanSectionId));
                 } else if (reordered && dragCategoryId != -1L) {
                     viewModel.reorderTodos(adapter.orderedTodoIdsForCategory(dragCategoryId));
                 }
                 reordered = false;
                 dragCategoryId = -1L;
                 reorderedCategories = false;
+                reorderedPlan = false;
+                dragPlanSectionId = 0;
             }
 
             @Override
@@ -398,7 +423,9 @@ public class HomeFragment extends Fragment {
                     return makeMovementFlags(ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0);
                 }
                 if (type == DisplayItem.TYPE_TODO_ROW) {
-                    int drag = adapter.isPlanMode() ? 0 : (ItemTouchHelper.UP | ItemTouchHelper.DOWN);
+                    boolean planDrag = adapter.isPlanMode() && !viewModel.isSearchActive();
+                    int drag = (!adapter.isPlanMode() || planDrag)
+                            ? (ItemTouchHelper.UP | ItemTouchHelper.DOWN) : 0;
                     return makeMovementFlags(drag, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
                 }
                 if (type == DisplayItem.TYPE_COMPLETED_ROW) {

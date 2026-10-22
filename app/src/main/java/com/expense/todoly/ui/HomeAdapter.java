@@ -47,6 +47,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final Listener listener;
     private boolean reorderCategoriesMode = false;
     private boolean planMode = false;
+    private boolean searchActive = false;
 
     public HomeAdapter(Listener listener) {
         this.listener = listener;
@@ -66,6 +67,17 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public void setPlanMode(boolean enabled) {
         if (planMode == enabled) return;
         planMode = enabled;
+        for (int i = 0; i < items.size(); i++) {
+            if (items.get(i).type == DisplayItem.TYPE_TODO_ROW) {
+                notifyItemChanged(i);
+            }
+        }
+    }
+
+    public void setSearchActive(boolean active) {
+        if (searchActive == active) return;
+        searchActive = active;
+        if (!planMode) return;
         for (int i = 0; i < items.size(); i++) {
             if (items.get(i).type == DisplayItem.TYPE_TODO_ROW) {
                 notifyItemChanged(i);
@@ -167,6 +179,17 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         for (DisplayItem item : items) {
             if (item.type == DisplayItem.TYPE_TODO_ROW && item.todo != null
                     && item.todo.categoryId == categoryId) {
+                ids.add(item.todo.id);
+            }
+        }
+        return ids;
+    }
+
+    public List<Long> orderedTodoIdsForPlanSection(int sectionId) {
+        List<Long> ids = new ArrayList<>();
+        for (DisplayItem item : items) {
+            if (item.type == DisplayItem.TYPE_TODO_ROW && item.todo != null
+                    && item.planSectionId == sectionId) {
                 ids.add(item.todo.id);
             }
         }
@@ -436,7 +459,8 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             iconWeekday.setVisibility(item.todo.weekday ? View.VISIBLE : View.GONE);
             iconTimesensitive.setVisibility(item.todo.timesensitive ? View.VISIBLE : View.GONE);
 
-            boolean reorderable = item.type == DisplayItem.TYPE_TODO_ROW && !planMode;
+            boolean reorderable = item.type == DisplayItem.TYPE_TODO_ROW
+                    && (!planMode || !searchActive);
             dragHandle.setVisibility(reorderable ? View.VISIBLE : View.GONE);
             if (reorderable) {
                 dragHandle.setOnTouchListener((v, event) -> {

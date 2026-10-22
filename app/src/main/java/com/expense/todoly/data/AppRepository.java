@@ -120,6 +120,18 @@ public class AppRepository {
         });
     }
 
+    public void reorderPlan(final boolean weekend, final List<Long> orderedIds) {
+        AppDatabase.IO_EXECUTOR.execute(() -> db.runInTransaction(() -> {
+            for (int i = 0; i < orderedIds.size(); i++) {
+                if (weekend) {
+                    todoDao.updateWeekendSortOrder(orderedIds.get(i), i);
+                } else {
+                    todoDao.updateTodaySortOrder(orderedIds.get(i), i);
+                }
+            }
+        }));
+    }
+
     public void reorderCategories(final List<Long> orderedIds) {
         AppDatabase.IO_EXECUTOR.execute(() -> {
             for (int i = 0; i < orderedIds.size(); i++) {

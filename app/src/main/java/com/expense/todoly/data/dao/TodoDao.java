@@ -32,6 +32,12 @@ public interface TodoDao {
     @Query("UPDATE todos SET sortOrder = :sortOrder WHERE id = :id")
     void updateSortOrder(long id, int sortOrder);
 
+    @Query("UPDATE todos SET todaySortOrder = :sortOrder WHERE id = :id")
+    void updateTodaySortOrder(long id, int sortOrder);
+
+    @Query("UPDATE todos SET weekendSortOrder = :sortOrder WHERE id = :id")
+    void updateWeekendSortOrder(long id, int sortOrder);
+
     @Query("SELECT COALESCE(MAX(sortOrder), -1) FROM todos WHERE categoryId = :categoryId")
     int maxSortOrder(long categoryId);
 

@@ -52,6 +52,12 @@ public class Todo {
 
     public int sortOrder;
 
+    /** Order inside Today sections. -1 means not yet arranged. */
+    public int todaySortOrder = -1;
+
+    /** Order inside Weekend sections. -1 means not yet arranged. */
+    public int weekendSortOrder = -1;
+
     public Todo(long categoryId, @NonNull String title, String notes, long createdAt, int sortOrder) {
         this.categoryId = categoryId;
         this.title = title;
@@ -67,5 +73,7 @@ public class Todo {
         this.createdAt = createdAt;
         this.completedAt = 0L;
         this.sortOrder = sortOrder;
+        this.todaySortOrder = -1;
+        this.weekendSortOrder = -1;
     }
 }

@@ -313,6 +313,11 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         return items.size();
     }
 
+    private static boolean show(View view, boolean visible) {
+        view.setVisibility(visible ? View.VISIBLE : View.GONE);
+        return visible;
+    }
+
     private static int parseColor(String hex) {
         try {
             return Color.parseColor(hex);
@@ -437,6 +442,8 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         final MaterialCheckBox checkbox;
         final TextView title;
         final TextView subtitle;
+        final View metaRow;
+        final View metaSeparator;
         final ImageView iconImportant;
         final ImageView iconQuick;
         final ImageView iconToday;
@@ -454,6 +461,8 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             checkbox = itemView.findViewById(R.id.checkbox);
             title = itemView.findViewById(R.id.title);
             subtitle = itemView.findViewById(R.id.subtitle);
+            metaRow = itemView.findViewById(R.id.metaRow);
+            metaSeparator = itemView.findViewById(R.id.metaSeparator);
             iconImportant = itemView.findViewById(R.id.iconImportant);
             iconQuick = itemView.findViewById(R.id.iconQuick);
             iconToday = itemView.findViewById(R.id.iconToday);
@@ -471,13 +480,22 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             title.setText(item.todo.title);
             colorStrip.setBackgroundTintList(ColorStateList.valueOf(parseColor(item.categoryColor)));
 
-            iconImportant.setVisibility(item.todo.important ? View.VISIBLE : View.GONE);
-            iconQuick.setVisibility(item.todo.quick ? View.VISIBLE : View.GONE);
-            iconToday.setVisibility(item.todo.today ? View.VISIBLE : View.GONE);
-            iconTomorrow.setVisibility(item.todo.tomorrow ? View.VISIBLE : View.GONE);
-            iconWeekend.setVisibility(item.todo.weekend ? View.VISIBLE : View.GONE);
-            iconWeekday.setVisibility(item.todo.weekday ? View.VISIBLE : View.GONE);
-            iconTimesensitive.setVisibility(item.todo.timesensitive ? View.VISIBLE : View.GONE);
+            boolean onToday = planMode && !planWeekend;
+            boolean onWeekend = planMode && planWeekend;
+            int section = planMode ? item.planSectionId : 0;
+            boolean sectionImpliesImportant = section == DisplayItem.PLAN_SECTION_IMPORTANT_DUE
+                    || section == DisplayItem.PLAN_SECTION_IMPORTANT;
+            boolean sectionImpliesDue = section == DisplayItem.PLAN_SECTION_IMPORTANT_DUE;
+            boolean sectionImpliesQuick = section == DisplayItem.PLAN_SECTION_QUICK;
+
+            int visibleIcons = 0;
+            if (show(iconImportant, item.todo.important && !sectionImpliesImportant)) visibleIcons++;
+            if (show(iconQuick, item.todo.quick && !sectionImpliesQuick)) visibleIcons++;
+            if (show(iconToday, item.todo.today && !onToday)) visibleIcons++;
+            if (show(iconTomorrow, item.todo.tomorrow)) visibleIcons++;
+            if (show(iconWeekend, item.todo.weekend && !onWeekend)) visibleIcons++;
+            if (show(iconWeekday, item.todo.weekday)) visibleIcons++;
+            if (show(iconTimesensitive, item.todo.timesensitive && !sectionImpliesDue)) visibleIcons++;
 
             boolean topForTab = planWeekend ? item.todo.topWeekend : item.todo.topToday;
             boolean showTopButton = planMode && item.type == DisplayItem.TYPE_TODO_ROW;
@@ -493,8 +511,8 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             }
 
             boolean showTopIcon = !planMode && (item.todo.topToday || item.todo.topWeekend);
-            iconTop.setVisibility(showTopIcon ? View.VISIBLE : View.GONE);
-            if (showTopIcon) {
+            if (show(iconTop, showTopIcon)) {
+                visibleIcons++;
                 int tint = itemView.getContext().getColor(item.todo.topToday
                         ? R.color.top : R.color.weekend);
                 iconTop.setImageTintList(ColorStateList.valueOf(tint));
@@ -514,12 +532,12 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 dragHandle.setOnTouchListener(null);
             }
 
-            if (item.categoryName != null && !item.categoryName.isEmpty()) {
-                subtitle.setVisibility(View.VISIBLE);
+            boolean hasCategory = item.categoryName != null && !item.categoryName.isEmpty();
+            if (show(subtitle, hasCategory)) {
                 subtitle.setText(item.categoryName);
-            } else {
-                subtitle.setVisibility(View.GONE);
             }
+            show(metaSeparator, hasCategory && visibleIcons > 0);
+            show(metaRow, hasCategory || visibleIcons > 0);
 
             itemView.setOnClickListener(v -> listener.onTodoClick(item));
             itemView.setOnLongClickListener(v -> {

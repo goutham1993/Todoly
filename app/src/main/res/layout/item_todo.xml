@@ -57,108 +57,128 @@
                 android:textSize="16sp"
                 tools:ignore="HardcodedText" />
 
-            <TextView
-                android:id="@+id/subtitle"
+            <LinearLayout
+                android:id="@+id/metaRow"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:text="Personal"
-                android:textColor="?attr/colorOnSurfaceVariant"
-                android:textSize="13sp"
-                android:visibility="gone"
-                tools:ignore="HardcodedText"
-                tools:visibility="visible" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/subtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:maxWidth="160dp"
+                    android:text="Personal"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:textSize="13sp"
+                    android:visibility="gone"
+                    tools:ignore="HardcodedText"
+                    tools:visibility="visible" />
+
+                <TextView
+                    android:id="@+id/metaSeparator"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=" · "
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:textSize="13sp"
+                    android:visibility="gone"
+                    tools:ignore="HardcodedText"
+                    tools:visibility="visible" />
+
+                <ImageView
+                    android:id="@+id/iconToday"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_marginStart="4dp"
+                    android:contentDescription="@string/attr_today"
+                    android:src="@drawable/ic_today"
+                    app:tint="@color/today"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+
+                <ImageView
+                    android:id="@+id/iconTomorrow"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_marginStart="4dp"
+                    android:contentDescription="@string/attr_tomorrow"
+                    android:src="@drawable/ic_tomorrow"
+                    app:tint="@color/tomorrow"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+
+                <ImageView
+                    android:id="@+id/iconWeekday"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_marginStart="4dp"
+                    android:contentDescription="@string/attr_weekday"
+                    android:src="@drawable/ic_weekday"
+                    app:tint="@color/weekday"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+
+                <ImageView
+                    android:id="@+id/iconWeekend"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_marginStart="4dp"
+                    android:contentDescription="@string/attr_weekend"
+                    android:src="@drawable/ic_weekend"
+                    app:tint="@color/weekend"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+
+                <ImageView
+                    android:id="@+id/iconQuick"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_marginStart="4dp"
+                    android:contentDescription="@string/attr_quick"
+                    android:src="@drawable/ic_bolt"
+                    app:tint="@color/quick"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+
+                <ImageView
+                    android:id="@+id/iconImportant"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_marginStart="4dp"
+                    android:contentDescription="@string/attr_important"
+                    android:src="@drawable/ic_star"
+                    app:tint="@color/important"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+
+                <ImageView
+                    android:id="@+id/iconTimesensitive"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_marginStart="4dp"
+                    android:contentDescription="@string/attr_timesensitive"
+                    android:src="@drawable/ic_clock"
+                    app:tint="@color/timesensitive"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+
+                <ImageView
+                    android:id="@+id/iconTop"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_marginStart="4dp"
+                    android:contentDescription="@string/cd_top_three"
+                    android:src="@drawable/ic_pin"
+                    app:tint="@color/top"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+            </LinearLayout>
         </LinearLayout>
-
-        <ImageView
-            android:id="@+id/iconToday"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_marginStart="6dp"
-            android:contentDescription="@string/attr_today"
-            android:src="@drawable/ic_today"
-            app:tint="@color/today"
-            android:visibility="gone"
-            tools:visibility="visible" />
-
-        <ImageView
-            android:id="@+id/iconTomorrow"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_marginStart="6dp"
-            android:contentDescription="@string/attr_tomorrow"
-            android:src="@drawable/ic_tomorrow"
-            app:tint="@color/tomorrow"
-            android:visibility="gone"
-            tools:visibility="visible" />
-
-        <ImageView
-            android:id="@+id/iconWeekday"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_marginStart="6dp"
-            android:contentDescription="@string/attr_weekday"
-            android:src="@drawable/ic_weekday"
-            app:tint="@color/weekday"
-            android:visibility="gone"
-            tools:visibility="visible" />
-
-        <ImageView
-            android:id="@+id/iconWeekend"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_marginStart="6dp"
-            android:contentDescription="@string/attr_weekend"
-            android:src="@drawable/ic_weekend"
-            app:tint="@color/weekend"
-            android:visibility="gone"
-            tools:visibility="visible" />
-
-        <ImageView
-            android:id="@+id/iconQuick"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_marginStart="6dp"
-            android:contentDescription="@string/attr_quick"
-            android:src="@drawable/ic_bolt"
-            app:tint="@color/quick"
-            android:visibility="gone"
-            tools:visibility="visible" />
-
-        <ImageView
-            android:id="@+id/iconImportant"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_marginStart="6dp"
-            android:contentDescription="@string/attr_important"
-            android:src="@drawable/ic_star"
-            app:tint="@color/important"
-            android:visibility="gone"
-            tools:visibility="visible" />
-
-        <ImageView
-            android:id="@+id/iconTimesensitive"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_marginStart="6dp"
-            android:contentDescription="@string/attr_timesensitive"
-            android:src="@drawable/ic_clock"
-            app:tint="@color/timesensitive"
-            android:visibility="gone"
-            tools:visibility="visible" />
-
-        <ImageView
-            android:id="@+id/iconTop"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_marginStart="6dp"
-            android:contentDescription="@string/cd_top_three"
-            android:src="@drawable/ic_pin"
-            app:tint="@color/top"
-            android:visibility="gone"
-            tools:visibility="visible" />
 
         <ImageView
             android:id="@+id/topButton"

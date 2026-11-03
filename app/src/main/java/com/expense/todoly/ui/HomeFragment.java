@@ -40,6 +40,8 @@ import nl.dionsegijn.konfetti.xml.KonfettiView;
 
 public class HomeFragment extends Fragment {
 
+    private static final int UNDO_DURATION_MS = 5000;
+
     private TodoViewModel viewModel;
     private HomeAdapter adapter;
     private RecyclerView recycler;
@@ -114,7 +116,13 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void onTodoChecked(DisplayItem item, boolean checked) {
-                viewModel.toggleComplete(item.todo, checked);
+                final Todo todo = item.todo;
+                viewModel.toggleComplete(todo, checked);
+                if (checked) {
+                    Snackbar.make(requireView(), R.string.task_completed, UNDO_DURATION_MS)
+                            .setAction(R.string.undo, v -> viewModel.undoComplete(todo))
+                            .show();
+                }
             }
 
             @Override

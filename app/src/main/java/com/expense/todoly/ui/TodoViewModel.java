@@ -566,6 +566,12 @@ public class TodoViewModel extends AndroidViewModel {
         }
     }
 
+    public void undoComplete(Todo todo) {
+        int streak = completionStreak;
+        toggleComplete(todo, false);
+        completionStreak = Math.max(0, streak - 1);
+    }
+
     public void deleteTodo(Todo todo) {
         repository.deleteTodo(todo);
     }

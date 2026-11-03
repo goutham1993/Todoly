@@ -107,6 +107,7 @@
     <string name="empty_weekend_subtitle">Tag tasks as Weekend to plan ahead. Pin up to three as Top 3, then important and due-soon items follow.</string>
 
     <string name="task_deleted">Task deleted</string>
+    <string name="task_completed">Task completed</string>
     <string name="need_category_first">Create a category first to add tasks</string>
     <string name="cd_category_color">Category color</string>
     <string name="cd_expand">Expand or collapse</string>

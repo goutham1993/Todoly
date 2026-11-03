@@ -223,6 +223,10 @@ public class TodoViewModel extends AndroidViewModel {
         return true;
     }
 
+    private static boolean isTop(Todo todo, HomeTab tab) {
+        return tab == HomeTab.WEEKEND ? todo.topWeekend : todo.topToday;
+    }
+
     private void rebuild() {
         List<CategoryWithCount> cats = categoriesWithCounts.getValue();
         List<Todo> active = activeTodos.getValue();
@@ -311,6 +315,11 @@ public class TodoViewModel extends AndroidViewModel {
         if (collapsed == null) collapsed = new HashSet<>();
 
         // Most specific first so each task appears in only one section.
+        appendPlanSection(items, cats, active, query, claimed, collapsed, tab,
+                DisplayItem.PLAN_SECTION_TOP,
+                app.getString(R.string.plan_section_top),
+                t -> matchesDayFlag(t, tab) && isTop(t, tab));
+
         appendPlanSection(items, cats, active, query, claimed, collapsed, tab,
                 DisplayItem.PLAN_SECTION_IMPORTANT_DUE,
                 app.getString(R.string.plan_section_important_due),
@@ -467,9 +476,45 @@ public class TodoViewModel extends AndroidViewModel {
 
     public void addTodo(long categoryId, String title, String notes, boolean important, boolean quick,
                         boolean weekend, boolean weekday, boolean timesensitive,
-                        boolean today, boolean tomorrow) {
+                        boolean today, boolean tomorrow, boolean topToday, boolean topWeekend) {
         repository.addTodo(categoryId, title, notes, important, quick, weekend, weekday,
-                timesensitive, today, tomorrow);
+                timesensitive, today, tomorrow, topToday, topWeekend);
+    }
+
+    public static final int TOP_LIMIT = 3;
+
+    public boolean canMarkTop(HomeTab tab, long excludeId) {
+        return countActiveTop(tab, excludeId) < TOP_LIMIT;
+    }
+
+    /**
+     * Marks or unmarks this task for the open plan tab.
+     * Returns false when marking would exceed the active Top 3 cap.
+     */
+    public boolean toggleTop(Todo todo, HomeTab tab) {
+        if (todo == null || (tab != HomeTab.TODAY && tab != HomeTab.WEEKEND)) return false;
+        boolean marking = !isTop(todo, tab);
+        if (marking && !canMarkTop(tab, todo.id)) return false;
+        if (tab == HomeTab.WEEKEND) {
+            todo.topWeekend = marking;
+            if (marking) todo.weekend = true;
+        } else {
+            todo.topToday = marking;
+            if (marking) todo.today = true;
+        }
+        repository.updateTodo(todo);
+        return true;
+    }
+
+    private int countActiveTop(HomeTab tab, long excludeId) {
+        List<Todo> active = activeTodos.getValue();
+        if (active == null) return 0;
+        int count = 0;
+        for (Todo todo : active) {
+            if (todo.id == excludeId) continue;
+            if (isTop(todo, tab)) count++;
+        }
+        return count;
     }
 
     public void updateTodo(Todo todo) {
@@ -500,7 +545,17 @@ public class TodoViewModel extends AndroidViewModel {
     }
 
     public void toggleComplete(Todo todo, boolean completed) {
-        repository.setCompleted(todo.id, completed);
+        if (!completed) {
+            if (todo.topToday && countActiveTop(HomeTab.TODAY, todo.id) >= TOP_LIMIT) {
+                todo.topToday = false;
+            }
+            if (todo.topWeekend && countActiveTop(HomeTab.WEEKEND, todo.id) >= TOP_LIMIT) {
+                todo.topWeekend = false;
+            }
+        }
+        todo.isCompleted = completed;
+        todo.completedAt = completed ? System.currentTimeMillis() : 0L;
+        repository.updateTodo(todo);
         if (completed) {
             completionStreak++;
             if (completionStreak % 3 == 0) {

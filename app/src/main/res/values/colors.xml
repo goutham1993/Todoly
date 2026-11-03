@@ -38,6 +38,7 @@
     <color name="timesensitive">#D63031</color>
     <color name="today">#6C5CE7</color>
     <color name="tomorrow">#A29BFE</color>
+    <color name="top">#E17055</color>
 
     <!-- Category palette -->
     <color name="cat_violet">#6C5CE7</color>

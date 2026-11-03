@@ -16,6 +16,7 @@ public class DisplayItem {
     public static final int PLAN_SECTION_IMPORTANT = 2;
     public static final int PLAN_SECTION_QUICK = 3;
     public static final int PLAN_SECTION_ALL = 4;
+    public static final int PLAN_SECTION_TOP = 5;
 
     public final int type;
 

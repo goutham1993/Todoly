@@ -33,7 +33,7 @@ public final class BackupManager {
 
     private static final String CATEGORY_HEADER = "id,name,colorHex,sortOrder,createdAt";
     private static final String TODO_HEADER =
-            "id,categoryId,title,notes,isCompleted,important,quick,weekend,weekday,timesensitive,today,tomorrow,createdAt,completedAt,sortOrder,todaySortOrder,weekendSortOrder";
+            "id,categoryId,title,notes,isCompleted,important,quick,weekend,weekday,timesensitive,today,tomorrow,createdAt,completedAt,sortOrder,todaySortOrder,weekendSortOrder,topToday,topWeekend";
 
     private BackupManager() {
     }
@@ -87,6 +87,8 @@ public final class BackupManager {
             o.put("sortOrder", t.sortOrder);
             o.put("todaySortOrder", t.todaySortOrder);
             o.put("weekendSortOrder", t.weekendSortOrder);
+            o.put("topToday", t.topToday);
+            o.put("topWeekend", t.topWeekend);
             todoArray.put(o);
         }
         root.put("todos", todoArray);
@@ -138,6 +140,8 @@ public final class BackupManager {
                 t.completedAt = o.optLong("completedAt", 0L);
                 t.todaySortOrder = o.optInt("todaySortOrder", -1);
                 t.weekendSortOrder = o.optInt("weekendSortOrder", -1);
+                t.topToday = o.optBoolean("topToday", false);
+                t.topWeekend = o.optBoolean("topWeekend", false);
                 todos.add(t);
             }
         }
@@ -212,7 +216,9 @@ public final class BackupManager {
                     .append(t.completedAt).append(',')
                     .append(t.sortOrder).append(',')
                     .append(t.todaySortOrder).append(',')
-                    .append(t.weekendSortOrder).append('\n');
+                    .append(t.weekendSortOrder).append(',')
+                    .append(t.topToday ? 1 : 0).append(',')
+                    .append(t.topWeekend ? 1 : 0).append('\n');
         }
         return sb.toString();
     }
@@ -245,6 +251,7 @@ public final class BackupManager {
             boolean hasTimesensitive = f.size() >= 13;
             boolean hasTodayTomorrow = f.size() >= 15;
             boolean hasPlanSort = f.size() >= 17;
+            boolean hasTop = f.size() >= 19;
             int createdIdx = hasTodayTomorrow ? 12 : (hasTimesensitive ? 10 : 9);
             int completedIdx = hasTodayTomorrow ? 13 : (hasTimesensitive ? 11 : 10);
             int sortIdx = hasTodayTomorrow ? 14 : (hasTimesensitive ? 12 : 11);
@@ -267,6 +274,8 @@ public final class BackupManager {
             t.completedAt = parseLong(f.get(completedIdx), 0L);
             t.todaySortOrder = hasPlanSort ? parseInt(f.get(15), -1) : -1;
             t.weekendSortOrder = hasPlanSort ? parseInt(f.get(16), -1) : -1;
+            t.topToday = hasTop && "1".equals(f.get(17));
+            t.topWeekend = hasTop && "1".equals(f.get(18));
             result.add(t);
         }
         return result;

@@ -150,6 +150,33 @@
             tools:visibility="visible" />
 
         <ImageView
+            android:id="@+id/iconTop"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginStart="6dp"
+            android:contentDescription="@string/cd_top_three"
+            android:src="@drawable/ic_pin"
+            app:tint="@color/top"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <ImageView
+            android:id="@+id/topButton"
+            android:layout_width="28dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="4dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:contentDescription="@string/cd_top_three"
+            android:focusable="true"
+            android:padding="4dp"
+            android:scaleType="center"
+            android:src="@drawable/ic_pin"
+            android:visibility="gone"
+            app:tint="@color/top"
+            tools:visibility="visible" />
+
+        <ImageView
             android:id="@+id/dragHandle"
             android:layout_width="28dp"
             android:layout_height="40dp"

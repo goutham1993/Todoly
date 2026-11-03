@@ -96,7 +96,8 @@ public class AppRepository {
                         final boolean important, final boolean quick,
                         final boolean weekend, final boolean weekday,
                         final boolean timesensitive, final boolean today,
-                        final boolean tomorrow) {
+                        final boolean tomorrow, final boolean topToday,
+                        final boolean topWeekend) {
         AppDatabase.IO_EXECUTOR.execute(() -> {
             int order = todoDao.maxSortOrder(categoryId) + 1;
             Todo todo = new Todo(categoryId, title, notes, System.currentTimeMillis(), order);
@@ -107,6 +108,8 @@ public class AppRepository {
             todo.timesensitive = timesensitive;
             todo.today = today;
             todo.tomorrow = tomorrow;
+            todo.topToday = topToday;
+            todo.topWeekend = topWeekend;
             todoDao.insert(todo);
             refreshWidgets();
         });

@@ -136,6 +136,14 @@ public class HomeFragment extends Fragment {
             }
 
             @Override
+            public void onTopClick(DisplayItem item) {
+                TodoViewModel.HomeTab tab = viewModel.getHomeTab().getValue();
+                if (!viewModel.toggleTop(item.todo, tab)) {
+                    Snackbar.make(requireView(), R.string.top_three_full, Snackbar.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
             public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
                 if (touchHelper != null) {
                     touchHelper.startDrag(viewHolder);
@@ -194,6 +202,7 @@ public class HomeFragment extends Fragment {
     private void onHomeTabChanged(TodoViewModel.HomeTab tab) {
         if (tab == null) tab = TodoViewModel.HomeTab.ALL;
         boolean plan = tab != TodoViewModel.HomeTab.ALL;
+        adapter.setPlanTabWeekend(tab == TodoViewModel.HomeTab.WEEKEND);
         adapter.setPlanMode(plan);
         filterBar.setVisibility(plan ? View.GONE : View.VISIBLE);
 
@@ -451,7 +460,8 @@ public class HomeFragment extends Fragment {
                             .setAction(R.string.undo, v ->
                                     viewModel.addTodo(todo.categoryId, todo.title, todo.notes,
                                             todo.important, todo.quick, todo.weekend, todo.weekday,
-                                            todo.timesensitive, todo.today, todo.tomorrow))
+                                            todo.timesensitive, todo.today, todo.tomorrow,
+                                            todo.topToday, todo.topWeekend))
                             .show();
                 }
             }
@@ -500,7 +510,8 @@ public class HomeFragment extends Fragment {
                             .setAction(R.string.undo, v ->
                                     viewModel.addTodo(todo.categoryId, todo.title, todo.notes,
                                             todo.important, todo.quick, todo.weekend, todo.weekday,
-                                            todo.timesensitive, todo.today, todo.tomorrow))
+                                            todo.timesensitive, todo.today, todo.tomorrow,
+                                            todo.topToday, todo.topWeekend))
                             .show();
                 })
                 .show();

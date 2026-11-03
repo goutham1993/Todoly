@@ -20,6 +20,10 @@
     <string name="attr_timesensitive">Due Soon</string>
     <string name="attr_today">Today</string>
     <string name="attr_tomorrow">Tomorrow</string>
+    <string name="attr_top_today">Top 3 today</string>
+    <string name="attr_top_weekend">Top 3 weekend</string>
+    <string name="top_three_full">You already have 3. Unmark one first.</string>
+    <string name="cd_top_three">Top 3</string>
     <string name="day">Day</string>
 
     <string name="delete_todo">Delete task?</string>
@@ -93,13 +97,14 @@
     <string name="plan_section_quick">Quick</string>
     <string name="plan_section_today">Today</string>
     <string name="plan_section_weekend">Weekend</string>
+    <string name="plan_section_top">Top 3</string>
 
     <string name="empty_title">Let\'s get organized</string>
     <string name="empty_subtitle">You don\'t have any categories yet. Tap the + button to create your first category, then start adding tasks.</string>
     <string name="empty_today_title">Nothing planned for today</string>
-    <string name="empty_today_subtitle">Mark tasks as Today to build your daily plan. Important and due-soon items will show up first.</string>
+    <string name="empty_today_subtitle">Mark tasks as Today to build your daily plan. Pin up to three as Top 3, then important and due-soon items follow.</string>
     <string name="empty_weekend_title">Nothing for the weekend</string>
-    <string name="empty_weekend_subtitle">Tag tasks as Weekend to plan ahead. Important and due-soon items will show up first.</string>
+    <string name="empty_weekend_subtitle">Tag tasks as Weekend to plan ahead. Pin up to three as Top 3, then important and due-soon items follow.</string>
 
     <string name="task_deleted">Task deleted</string>
     <string name="need_category_first">Create a category first to add tasks</string>

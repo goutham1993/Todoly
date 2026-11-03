@@ -71,6 +71,8 @@ public class AddTodoBottomSheet {
         Chip chipToday = view.findViewById(R.id.chipToday);
         Chip chipTomorrow = view.findViewById(R.id.chipTomorrow);
         Chip chipTimesensitive = view.findViewById(R.id.chipTimesensitive);
+        Chip chipTopToday = view.findViewById(R.id.chipTopToday);
+        Chip chipTopWeekend = view.findViewById(R.id.chipTopWeekend);
         MaterialButton saveButton = view.findViewById(R.id.saveButton);
         MaterialButton cancelButton = view.findViewById(R.id.cancelButton);
         MaterialCheckBox keepAddingCheck = view.findViewById(R.id.keepAddingCheck);
@@ -89,6 +91,8 @@ public class AddTodoBottomSheet {
             chipToday.setChecked(editing.today);
             chipTomorrow.setChecked(editing.tomorrow);
             chipTimesensitive.setChecked(editing.timesensitive);
+            chipTopToday.setChecked(editing.topToday);
+            chipTopWeekend.setChecked(editing.topWeekend);
         } else {
             if (precheckToday) chipToday.setChecked(true);
             if (precheckWeekend) {
@@ -106,11 +110,23 @@ public class AddTodoBottomSheet {
             if (!checked && chipTomorrow.isChecked()) {
                 chipTomorrow.setChecked(false);
             }
+            if (!checked && chipTopToday.isChecked()) {
+                chipTopToday.setChecked(false);
+            }
+        });
+        chipTopToday.setOnCheckedChangeListener((btn, checked) -> {
+            if (checked) chipToday.setChecked(true);
         });
         chipWeekend.setOnCheckedChangeListener((btn, checked) -> {
             if (checked && chipWeekday.isChecked()) {
                 chipWeekday.setChecked(false);
             }
+            if (!checked && chipTopWeekend.isChecked()) {
+                chipTopWeekend.setChecked(false);
+            }
+        });
+        chipTopWeekend.setOnCheckedChangeListener((btn, checked) -> {
+            if (checked) chipWeekend.setChecked(true);
         });
         chipWeekday.setOnCheckedChangeListener((btn, checked) -> {
             if (checked && chipWeekend.isChecked()) {
@@ -172,6 +188,21 @@ public class AddTodoBottomSheet {
             boolean today = chipToday.isChecked();
             boolean tomorrow = chipTomorrow.isChecked();
             boolean timesensitive = chipTimesensitive.isChecked();
+            boolean topToday = today && chipTopToday.isChecked();
+            boolean topWeekend = weekend && chipTopWeekend.isChecked();
+            long excludeId = isEdit ? editing.id : -1L;
+            if (topToday && (editing == null || !editing.topToday)
+                    && !viewModel.canMarkTop(TodoViewModel.HomeTab.TODAY, excludeId)) {
+                chipTopToday.setChecked(false);
+                Toast.makeText(context, R.string.top_three_full, Toast.LENGTH_LONG).show();
+                return;
+            }
+            if (topWeekend && (editing == null || !editing.topWeekend)
+                    && !viewModel.canMarkTop(TodoViewModel.HomeTab.WEEKEND, excludeId)) {
+                chipTopWeekend.setChecked(false);
+                Toast.makeText(context, R.string.top_three_full, Toast.LENGTH_LONG).show();
+                return;
+            }
 
             if (isEdit) {
                 editing.title = title;
@@ -184,13 +215,15 @@ public class AddTodoBottomSheet {
                 editing.today = today;
                 editing.tomorrow = tomorrow;
                 editing.timesensitive = timesensitive;
+                editing.topToday = topToday;
+                editing.topWeekend = topWeekend;
                 viewModel.updateTodo(editing);
                 dialog.dismiss();
                 return;
             }
 
             viewModel.addTodo(categoryId, title, notes, important, quick, weekend, weekday,
-                    timesensitive, today, tomorrow);
+                    timesensitive, today, tomorrow, topToday, topWeekend);
             if (keepAddingCheck.isChecked()) {
                 titleInput.setText("");
                 titleInput.setError(null);
@@ -202,6 +235,8 @@ public class AddTodoBottomSheet {
                 chipToday.setChecked(precheckToday);
                 chipTomorrow.setChecked(false);
                 chipTimesensitive.setChecked(false);
+                chipTopToday.setChecked(false);
+                chipTopWeekend.setChecked(false);
                 titleInput.requestFocus();
             } else {
                 dialog.dismiss();

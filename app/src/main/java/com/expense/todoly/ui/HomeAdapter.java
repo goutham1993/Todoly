@@ -40,6 +40,8 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         void onAddTaskClick(long categoryId);
 
+        void onTopClick(DisplayItem item);
+
         void onStartDrag(RecyclerView.ViewHolder viewHolder);
     }
 
@@ -47,6 +49,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final Listener listener;
     private boolean reorderCategoriesMode = false;
     private boolean planMode = false;
+    private boolean planWeekend = false;
     private boolean searchActive = false;
 
     public HomeAdapter(Listener listener) {
@@ -67,6 +70,17 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public void setPlanMode(boolean enabled) {
         if (planMode == enabled) return;
         planMode = enabled;
+        for (int i = 0; i < items.size(); i++) {
+            if (items.get(i).type == DisplayItem.TYPE_TODO_ROW) {
+                notifyItemChanged(i);
+            }
+        }
+    }
+
+    public void setPlanTabWeekend(boolean weekend) {
+        if (planWeekend == weekend) return;
+        planWeekend = weekend;
+        if (!planMode) return;
         for (int i = 0; i < items.size(); i++) {
             if (items.get(i).type == DisplayItem.TYPE_TODO_ROW) {
                 notifyItemChanged(i);
@@ -150,6 +164,8 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         && a.todo.timesensitive == b.todo.timesensitive
                         && a.todo.today == b.todo.today
                         && a.todo.tomorrow == b.todo.tomorrow
+                        && a.todo.topToday == b.todo.topToday
+                        && a.todo.topWeekend == b.todo.topWeekend
                         && a.planSectionId == b.planSectionId
                         && a.categoryColor.equals(b.categoryColor)
                         && equalsNullable(a.categoryName, b.categoryName);
@@ -428,6 +444,8 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         final ImageView iconWeekend;
         final ImageView iconWeekday;
         final ImageView iconTimesensitive;
+        final ImageView iconTop;
+        final ImageView topButton;
         final ImageView dragHandle;
 
         TodoVH(@NonNull View itemView) {
@@ -443,6 +461,8 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             iconWeekend = itemView.findViewById(R.id.iconWeekend);
             iconWeekday = itemView.findViewById(R.id.iconWeekday);
             iconTimesensitive = itemView.findViewById(R.id.iconTimesensitive);
+            iconTop = itemView.findViewById(R.id.iconTop);
+            topButton = itemView.findViewById(R.id.topButton);
             dragHandle = itemView.findViewById(R.id.dragHandle);
         }
 
@@ -458,6 +478,27 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             iconWeekend.setVisibility(item.todo.weekend ? View.VISIBLE : View.GONE);
             iconWeekday.setVisibility(item.todo.weekday ? View.VISIBLE : View.GONE);
             iconTimesensitive.setVisibility(item.todo.timesensitive ? View.VISIBLE : View.GONE);
+
+            boolean topForTab = planWeekend ? item.todo.topWeekend : item.todo.topToday;
+            boolean showTopButton = planMode && item.type == DisplayItem.TYPE_TODO_ROW;
+            topButton.setVisibility(showTopButton ? View.VISIBLE : View.GONE);
+            if (showTopButton) {
+                int tint = itemView.getContext().getColor(topForTab
+                        ? R.color.top : R.color.on_surface_variant);
+                topButton.setImageTintList(ColorStateList.valueOf(tint));
+                topButton.setAlpha(topForTab ? 1f : 0.45f);
+                topButton.setOnClickListener(v -> listener.onTopClick(item));
+            } else {
+                topButton.setOnClickListener(null);
+            }
+
+            boolean showTopIcon = !planMode && (item.todo.topToday || item.todo.topWeekend);
+            iconTop.setVisibility(showTopIcon ? View.VISIBLE : View.GONE);
+            if (showTopIcon) {
+                int tint = itemView.getContext().getColor(item.todo.topToday
+                        ? R.color.top : R.color.weekend);
+                iconTop.setImageTintList(ColorStateList.valueOf(tint));
+            }
 
             boolean reorderable = item.type == DisplayItem.TYPE_TODO_ROW
                     && (!planMode || !searchActive);

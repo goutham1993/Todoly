@@ -58,6 +58,12 @@ public class Todo {
     /** Order inside Weekend sections. -1 means not yet arranged. */
     public int weekendSortOrder = -1;
 
+    /** Focus flag for the Today tab. At most three active tasks should be set. */
+    public boolean topToday;
+
+    /** Focus flag for the Weekend tab. At most three active tasks should be set. */
+    public boolean topWeekend;
+
     public Todo(long categoryId, @NonNull String title, String notes, long createdAt, int sortOrder) {
         this.categoryId = categoryId;
         this.title = title;
